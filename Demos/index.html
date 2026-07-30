@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperLocal AI Platform - Final Capstone Presentation & Interactive Prototype</title>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --secondary: #0ea5e9;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.4);
+            --bg: #030712;
+            --surface: #0b1329;
+            --surface-card: #111c38;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+            --border-highlight: #334155;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body, html {
+            height: 100%;
+            width: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .slide-deck {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Slide Styles */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px 60px 80px 60px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.96) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+
+        .slide.full-page {
+            padding: 0;
+            justify-content: flex-start;
+        }
+
+        .slide-tag {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .slide-tag::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        h2.slide-title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border-highlight);
+            padding-bottom: 8px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+        .card { 
+            background: rgba(17, 28, 56, 0.6); 
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-md); 
+            padding: 20px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .card h3 { font-size: 1.1rem; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+        ul { padding-left: 18px; }
+        li { margin-bottom: 8px; color: #cbd5e1; font-size: 0.92rem; line-height: 1.5; }
+
+        /* Use Case SVG Interactivity */
+        .uc-node {
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .uc-node:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
+        }
+
+        /* Controls Footer */
+        .deck-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px 32px;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: var(--surface-card);
+            color: white;
+            border: 1px solid var(--border-highlight);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .nav-btn:hover { background: var(--primary); border-color: var(--primary); color: #000; box-shadow: 0 0 12px var(--primary-glow); }
+        .slide-indicator { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; }
+
+        /* Cover Elements */
+        .cover-content { text-align: center; max-width: 800px; margin: 0 auto; }
+        .cover-title { font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, #10b981 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; line-height: 1.1; }
+        .cover-subtitle { font-size: 1.2rem; color: #94a3b8; margin-bottom: 30px; }
+
+        .team-card { background: rgba(17, 28, 56, 0.8); border: 1px solid var(--border-highlight); border-radius: 12px; padding: 22px; text-align: left; transition: 0.3s; }
+        .team-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .team-card h4 { font-size: 1.2rem; color: #38bdf8; margin-bottom: 6px; }
+        .team-card p { font-size: 0.95rem; color: #cbd5e1; }
+
+        /* Timeline Styles */
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            background: rgba(17, 28, 56, 0.4);
+            padding: 10px 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Prototype Styles */
+        .full-prototype-wrapper { width: 100vw; height: calc(100vh - 55px); background: #030712; display: flex; flex-direction: column; overflow: hidden; }
+        .proto-header { padding: 12px 24px; background: #0b1329; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .proto-logo { font-size: 1.2rem; font-weight: 800; color: #10b981; }
+        .proto-ribbon { background: #0f172a; color: white; padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+        
+        .proto-pill { 
+            background: #1e293b; color: #cbd5e1; border: 1px solid #334155; 
+            padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; cursor: pointer; 
+            white-space: nowrap; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .proto-pill:hover { border-color: var(--primary); color: white; transform: translateY(-1px); }
+        .proto-pill.active { background: #10b981; color: white; border-color: #10b981; font-weight: bold; box-shadow: 0 0 10px var(--primary-glow); }
+        
+        .proto-content-area { flex: 1; padding: 20px; overflow-y: auto; background: #0f172a; color: #f8fafc; scroll-behavior: smooth; }
+        .proto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+        
+        /* Product Cards */
+        .proto-card { 
+            background: #1e293b; 
+            border: 1px solid var(--border-highlight); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            position: relative; 
+            animation: fadeInCard 0.4s ease forwards;
+        }
+
+        @keyframes fadeInCard {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .proto-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-glow);
+        }
+
+        .proto-card.ai-highlight { 
+            border: 2px solid var(--primary); 
+            animation: pulseGlow 1.8s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px var(--primary-glow); }
+            100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
+        }
+
+        .proto-img { width: 100%; height: 140px; object-fit: cover; background: #0f172a; transition: transform 0.4s ease; }
+        .proto-card:hover .proto-img { transform: scale(1.08); }
+        .proto-card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; background: #1e293b; z-index: 2; }
+        
+        .proto-btn { 
+            background: #10b981; color: white; border: none; padding: 8px 12px; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: auto; 
+            width: 100%; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .proto-btn:hover { background: #059669; transform: scale(0.98); }
+
+        .ai-match-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(16, 185, 129, 0.95);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: none;
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Radar Pulse Animation */
+        .radar-box {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: radarPulse 1.6s infinite ease-out;
+            opacity: 0;
+        }
+
+        .radar-circle:nth-child(2) { animation-delay: 0.5s; }
+        .radar-circle:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes radarPulse {
+            0% { transform: scale(0.3); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        /* GPS Dynamic Telemetry Styles */
+        .staff-chip {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .staff-chip:hover { border-color: var(--primary); background: #0b1329; }
+        .staff-chip.active { border-color: var(--primary); background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 12px var(--primary-glow); }
+        .staff-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+
+        .telemetry-badge {
+            background: #0b1329;
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .telemetry-badge label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .telemetry-badge span { font-weight: 700; color: #10b981; font-family: monospace; font-size: 0.95rem; }
+
+        @media (max-width: 900px) {
+            .usecase-container { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 30px 20px 80px 20px; }
+            .cover-title { font-size: 2.2rem; }
+            .proto-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-deck">
+        
+        <!-- SLIDE 1: Cover Page -->
+        <div class="slide active">
+            <div class="cover-content">
+                <div class="slide-tag" style="justify-content: center; margin-bottom: 16px;">Capstone Project Presentation</div>
+                <h1 class="cover-title">HyperLocal AI Platform</h1>
+                <p class="cover-subtitle">Next-Generation Neighborhood Commerce & Multimodal Discovery Engine</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">CSE 327 Section 9</span>
+                    <span style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid #0ea5e9; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">100 Unique Products & Images Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: Team Details -->
+        <div class="slide">
+            <div class="slide-tag">02 / Project Team</div>
+            <h2 class="slide-title">Team Members & Student Details</h2>
+            <div class="grid-3" style="margin-top: 15px;">
+                <div class="team-card">
+                    <h4>Rafiul Omar Rafi</h4>
+                    <p style="margin-top: 6px;">Student ID: <strong style="color: #10b981;">2233192042</strong></p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: #94a3b8;">Dept. of Computer Science & Engineering</p>
+                    <p style="font-size: 0.85rem; color: #94a3b8;">North South University</p>
+                </div>
+                <div class="team-card">
+                    <h4>Rafiah Mrittika</h4>
+                    <p style="margin-top: 6px;">Student ID: <strong style="color: #10b981;">2411333042</strong></p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: #94a3b8;">Dept. of Computer Science & Engineering</p>
+                    <p style="font-size: 0.85rem; color: #94a3b8;">North South University</p>
+                </div>
+                <div class="team-card">
+                    <h4>Mohiuddin Sefat</h4>
+                    <p style="margin-top: 6px;">Student ID: <strong style="color: #10b981;">2231193642</strong></p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: #94a3b8;">Dept. of Computer Science & Engineering</p>
+                    <p style="font-size: 0.85rem; color: #94a3b8;">North South University</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Problem Statement -->
+        <div class="slide">
+            <div class="slide-tag">03 / Problem Analysis</div>
+            <h2 class="slide-title">Problem Statement & Market Gap</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>❌ Local Vendor Isolation</h3>
+                    <ul>
+                        <li>Neighborhood grocery and retail vendors lack digital exposure and real-time inventory visibility.</li>
+                        <li>Centralized e-commerce giants charge steep commissions and slow delivery timelines.</li>
+                        <li>Inability to present dynamic stock updates to nearby local buyers.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>❌ Search & Logistics Friction</h3>
+                    <ul>
+                        <li>Customers struggle to find specific local items (e.g. fresh regional produce) within walking distance.</li>
+                        <li>Traditional search lacks regional voice & visual camera object recognition.</li>
+                        <li>Static pricing eliminates conventional micro-bargaining and localized fleet dispatch.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Requirement Analysis -->
+        <div class="slide">
+            <div class="slide-tag">04 / Requirements</div>
+            <h2 class="slide-title">Requirement Analysis</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color:#10b981;">Functional Requirements</h3>
+                    <ul>
+                        <li><strong>Multimodal AI Search:</strong> Voice dialect processing and camera visual vector matching.</li>
+                        <li><strong>Live GPS Telemetry:</strong> Real-time delivery fleet tracking with dynamic ETA countdowns.</li>
+                        <li><strong>Vendor Catalog & AI Bargain Engine:</strong> Automated negotiation and multi-store inventory synchronization.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color:#38bdf8;">Non-Functional Requirements</h3>
+                    <ul>
+                        <li><strong>Low Latency:</strong> Sub-second catalog search and dynamic GPS updates every 50ms.</li>
+                        <li><strong>Scalability:</strong> Modular architecture supporting over 100+ distinct local vendor items per hub.</li>
+                        <li><strong>Usability:</strong> Fully responsive, high-contrast UI tailored for desktop and mobile devices.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Feasibility Analysis -->
+        <div class="slide">
+            <div class="slide-tag">05 / Feasibility</div>
+            <h2 class="slide-title">Feasibility Analysis</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>🛠️ Technical Feasibility</h3>
+                    <p>Built using standard Web APIs, SVG canvas manipulation, and Vanilla JavaScript ESM, eliminating heavy framework overhead while guaranteeing cross-browser support.</p>
+                </div>
+                <div class="card">
+                    <h3>⚙️ Operational Feasibility</h3>
+                    <p>Intuitive dual-interface for local store vendors and buyers requires zero technical training, ensuring smooth neighborhood adoption.</p>
+                </div>
+                <div class="card">
+                    <h3>💰 Economic Feasibility</h3>
+                    <p>Utilizes open-source standards and lightweight local API endpoints, drastically reducing infrastructure costs compared to monolithic cloud setups.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: DETAILED VECTOR UML USE CASE DIAGRAM -->
+        <div class="slide">
+            <div class="slide-tag">06 / System Architecture</div>
+            <h2 class="slide-title">UML Use Case Diagram</h2>
+            
+            <div class="usecase-container" style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 18px; align-items: start;">
+                
+                <!-- Vector SVG Diagram -->
+                <div style="background: rgba(11, 19, 41, 0.85); border: 1px solid var(--border-highlight); border-radius: var(--radius-md); padding: 12px; box-shadow: 0 10px 32px rgba(0,0,0,0.5); overflow: hidden;">
+                    <svg viewBox="0 0 840 500" width="100%" height="100%" style="font-family: inherit;">
+                        <defs>
+                            <linearGradient id="systemBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0b1329" stop-opacity="0.95"/>
+                                <stop offset="100%" stop-color="#030712" stop-opacity="0.98"/>
+                            </linearGradient>
+                            <linearGradient id="ucGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#1e293b"/>
+                                <stop offset="100%" stop-color="#0f172a"/>
+                            </linearGradient>
+                            <linearGradient id="aiUcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#2e1065"/>
+                                <stop offset="100%" stop-color="#0f172a"/>
+                            </linearGradient>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+                            </marker>
+                            <marker id="arrowDashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
+                            </marker>
+                        </defs>
+
+                        <!-- System Boundary Box -->
+                        <rect x="175" y="15" width="490" height="470" rx="16" fill="url(#systemBg)" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4"/>
+                        <text x="420" y="42" font-size="13" font-weight="800" fill="#10b981" text-anchor="middle" letter-spacing="1.5">HYPERLOCAL AI PLATFORM SYSTEM BOUNDARY</text>
+
+                        <!-- ACTORS (LEFT) -->
+                        <g transform="translate(65, 120)">
+                            <circle cx="20" cy="12" r="12" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+                            <line x1="20" y1="24" x2="20" y2="52" stroke="#38bdf8" stroke-width="2.5"/>
+                            <line x1="0" y1="34" x2="40" y2="34" stroke="#38bdf8" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="4" y2="76" stroke="#38bdf8" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="36" y2="76" stroke="#38bdf8" stroke-width="2.5"/>
+                            <text x="20" y="96" font-size="12" font-weight="700" fill="#38bdf8" text-anchor="middle">Customer / Buyer</text>
+                            <text x="20" y="110" font-size="9" fill="#94a3b8" text-anchor="middle">&laquo;Primary Actor&raquo;</text>
+                        </g>
+
+                        <g transform="translate(65, 330)">
+                            <circle cx="20" cy="12" r="12" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                            <line x1="20" y1="24" x2="20" y2="52" stroke="#f59e0b" stroke-width="2.5"/>
+                            <line x1="0" y1="34" x2="40" y2="34" stroke="#f59e0b" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="4" y2="76" stroke="#f59e0b" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="36" y2="76" stroke="#f59e0b" stroke-width="2.5"/>
+                            <text x="20" y="96" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="middle">Store Vendor</text>
+                            <text x="20" y="110" font-size="9" fill="#94a3b8" text-anchor="middle">&laquo;Primary Actor&raquo;</text>
+                        </g>
+
+                        <!-- ACTORS (RIGHT) -->
+                        <g transform="translate(775, 120)">
+                            <circle cx="20" cy="12" r="12" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                            <line x1="20" y1="24" x2="20" y2="52" stroke="#10b981" stroke-width="2.5"/>
+                            <line x1="0" y1="34" x2="40" y2="34" stroke="#10b981" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="4" y2="76" stroke="#10b981" stroke-width="2.5"/>
+                            <line x1="20" y1="52" x2="36" y2="76" stroke="#10b981" stroke-width="2.5"/>
+                            <text x="20" y="96" font-size="12" font-weight="700" fill="#10b981" text-anchor="middle">Delivery Staff</text>
+                            <text x="20" y="110" font-size="9" fill="#94a3b8" text-anchor="middle">&laquo;Primary Actor&raquo;</text>
+                        </g>
+
+                        <g transform="translate(775, 330)">
+                            <rect x="0" y="10" width="40" height="40" rx="8" fill="none" stroke="#8b5cf6" stroke-width="2.5"/>
+                            <text x="20" y="35" font-size="18" text-anchor="middle">🤖</text>
+                            <text x="20" y="68" font-size="12" font-weight="700" fill="#8b5cf6" text-anchor="middle">AI Engine</text>
+                            <text x="20" y="82" font-size="9" fill="#94a3b8" text-anchor="middle">&laquo;System Actor&raquo;</text>
+                        </g>
+
+                        <!-- CONNECTIONS -->
+                        <line x1="105" y1="140" x2="220" y2="88" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="105" y1="150" x2="220" y2="155" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="105" y1="160" x2="220" y2="222" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="105" y1="170" x2="220" y2="288" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+
+                        <line x1="105" y1="360" x2="220" y2="355" stroke="#f59e0b" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="105" y1="370" x2="220" y2="422" stroke="#f59e0b" stroke-width="1.5" opacity="0.8"/>
+
+                        <line x1="775" y1="150" x2="620" y2="288" stroke="#10b981" stroke-width="1.5" opacity="0.8"/>
+
+                        <line x1="775" y1="350" x2="620" y2="88" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="775" y1="360" x2="620" y2="155" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="775" y1="370" x2="620" y2="422" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+                        <!-- Stereotypes -->
+                        <path d="M 420,116 L 420,126" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowDashed)"/>
+                        <text x="430" y="123" font-size="9" fill="#c4b5fd" font-weight="bold">&laquo;extend&raquo;</text>
+
+                        <path d="M 420,250 L 420,260" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)"/>
+                        <text x="430" y="257" font-size="9" fill="#7dd3fc" font-weight="bold">&laquo;include&raquo;</text>
+
+                        <!-- USE CASES -->
+                        <g class="uc-node" transform="translate(220, 60)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#aiUcGrad)" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-1: Search via Voice &amp; Camera Vision AI</text>
+                            <text x="200" y="38" font-size="8.5" fill="#a78bfa" text-anchor="middle">Multimodal Vector Matching</text>
+                        </g>
+
+                        <g class="uc-node" transform="translate(220, 127)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#aiUcGrad)" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-2: Perform AI Price Negotiation</text>
+                            <text x="200" y="38" font-size="8.5" fill="#a78bfa" text-anchor="middle">Automated Micro-Bargain Bot</text>
+                        </g>
+
+                        <g class="uc-node" transform="translate(220, 194)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#ucGrad)" stroke="#38bdf8" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-3: Place Local Neighborhood Order</text>
+                            <text x="200" y="38" font-size="8.5" fill="#38bdf8" text-anchor="middle">Cart Checkout &amp; Multi-Vendor Hub</text>
+                        </g>
+
+                        <g class="uc-node" transform="translate(220, 260)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#ucGrad)" stroke="#10b981" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-4: Live Dynamic GPS Fleet Tracking</text>
+                            <text x="200" y="38" font-size="8.5" fill="#10b981" text-anchor="middle">Sub-second Latency &amp; Speed Telemetry</text>
+                        </g>
+
+                        <g class="uc-node" transform="translate(220, 327)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#ucGrad)" stroke="#f59e0b" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-5: Sync Catalog &amp; 100 Unique Products</text>
+                            <text x="200" y="38" font-size="8.5" fill="#fbbf24" text-anchor="middle">Real-time Stock &amp; Local Vendor Portal</text>
+                        </g>
+
+                        <g class="uc-node" transform="translate(220, 394)">
+                            <ellipse cx="200" cy="28" rx="190" ry="26" fill="url(#aiUcGrad)" stroke="#8b5cf6" stroke-width="2"/>
+                            <text x="200" y="24" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">UC-6: Audit AI Sentiment &amp; Trust Score</text>
+                            <text x="200" y="38" font-size="8.5" fill="#c4b5fd" text-anchor="middle">Customer Feedback Verification</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- System Specifications Card Sidebar -->
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="card" style="padding: 14px;">
+                        <h3 style="font-size: 0.95rem; color: #38bdf8; margin-bottom: 6px;">👥 Primary Actors</h3>
+                        <ul style="font-size: 0.8rem; padding-left: 14px;">
+                            <li><strong>Customer:</strong> Initiates multimodal search, negotiates deals, places orders, tracks riders.</li>
+                            <li><strong>Store Vendor:</strong> Syncs 100 unique stock items, monitors orders, reviews ratings.</li>
+                            <li><strong>Delivery Fleet:</strong> Transmits 50ms GPS telemetry, executes localized drop-offs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card" style="padding: 14px;">
+                        <h3 style="font-size: 0.95rem; color: #8b5cf6; margin-bottom: 6px;">🤖 System Actor &amp; Relations</h3>
+                        <ul style="font-size: 0.8rem; padding-left: 14px;">
+                            <li><strong>AI Engine:</strong> Computes feature-vector matching, runs dialect speech NLP, auto-negotiates prices.</li>
+                            <li><strong style="color:#c4b5fd;">&laquo;extend&raquo;:</strong> AI Price Negotiation extends product search during bulk purchases.</li>
+                            <li><strong style="color:#7dd3fc;">&laquo;include&raquo;:</strong> Order placement explicitly incorporates live GPS fleet tracking.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card" style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-color: var(--primary);">
+                        <h3 style="font-size: 0.88rem; color: #10b981; margin-bottom: 4px;">⚡ Decoupled Engine Architecture</h3>
+                        <p style="font-size: 0.78rem; color: #cbd5e1;">Guarantees sub-second response times for multi-store catalog sync and dynamic GPS telemetry streaming.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Technology Stack -->
+        <div class="slide">
+            <div class="slide-tag">07 / Technical Stack</div>
+            <h2 class="slide-title">Technology Stack</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color: #10b981;">Frontend & Interactive Engine</h3>
+                    <ul>
+                        <li><strong>UI / Styling:</strong> Modern HTML5, CSS3 Grid/Flexbox, Keyframe Animations</li>
+                        <li><strong>Scripting Logic:</strong> Vanilla JavaScript (ES6+ ESM)</li>
+                        <li><strong>Graphics & Maps:</strong> Dynamic SVG Vector Rendering, Canvas API</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: #8b5cf6;">AI Pipelines & Infrastructure</h3>
+                    <ul>
+                        <li><strong>Computer Vision & Voice:</strong> Feature Vector Matching & Dialect Processing</li>
+                        <li><strong>Telemetry Pipeline:</strong> Real-Time GPS Tracking & Speed Estimator</li>
+                        <li><strong>Version Control & Tools:</strong> Git, GitHub, VS Code, Unsplash Image Engine</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Project Timeline -->
+        <div class="slide">
+            <div class="slide-tag">08 / Roadmap</div>
+            <h2 class="slide-title">Project Timeline & Milestones</h2>
+            <div style="max-width: 800px; margin: 0 auto; width:100%;">
+                <div class="timeline-item">
+                    <span style="font-weight:700; color:#10b981; min-width:120px;">Milestone 1</span>
+                    <div><strong>Requirement Gathering & Architecture</strong> — Completed market research and core UML specifications.</div>
+                </div>
+                <div class="timeline-item">
+                    <span style="font-weight:700; color:#10b981; min-width:120px;">Milestone 2</span>
+                    <div><strong>Frontend Prototype & UI Engine</strong> — Developed responsive slide deck & multi-tab interactive UI.</div>
+                </div>
+                <div class="timeline-item">
+                    <span style="font-weight:700; color:#38bdf8; min-width:120px;">Milestone 3</span>
+                    <div><strong>100 Product Catalog & Multimodal AI</strong> — Visual/Voice search and 100 unique vendor items with accurate photos.</div>
+                </div>
+                <div class="timeline-item">
+                    <span style="font-weight:700; color:#a855f7; min-width:120px;">Milestone 4</span>
+                    <div><strong>Dynamic GPS & Fleet Telemetry</strong> — Live SVG route tracking with multi-staff selection.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Progress So Far -->
+        <div class="slide">
+            <div class="slide-tag">09 / Status</div>
+            <h2 class="slide-title">Progress So Far</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3 style="color:#10b981;">✅ Completed Core</h3>
+                    <ul>
+                        <li>Complete requirement and feasibility evaluation.</li>
+                        <li>UML Use Case architecture defined.</li>
+                        <li>Fully interactive 100 unique products catalog prototype.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color:#38bdf8;">✅ Active Modules</h3>
+                    <ul>
+                        <li>Simulated Voice & Camera Visual AI Search.</li>
+                        <li>Live SVG GPS Tracking with real-time staff telemetry.</li>
+                        <li>Multi-staff delivery fleet picker (3 active riders).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color:#a855f7;">🚀 Next Steps</h3>
+                    <ul>
+                        <li>Backend API integration with web-socket GPS updates.</li>
+                        <li>Database persistence for order history.</li>
+                        <li>Live vendor portal deployment.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: FULL INTERACTIVE 100-PRODUCT STORE PROTOTYPE -->
+        <div class="slide full-page">
+            <div class="full-prototype-wrapper">
+                
+                <!-- Prototype Header -->
+                <div class="proto-header">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="proto-logo">🛒 HyperLocal AI Platform</span>
+                        <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.75rem; font-weight:bold; padding:2px 8px; border-radius:10px;">100 Unique Products</span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button onclick="pShowToast('Cart Total: ' + pCartCount + ' items')" style="background:#1e293b; border:1px solid #334155; color:#10b981; padding:6px 14px; border-radius:16px; font-weight:700; font-size:0.8rem; cursor:pointer;">🛍️ Cart (<span id="p-cart">0</span>)</button>
+                        <button id="p-lang-btn" onclick="pToggleLang()" style="background:#1e293b; border:1px solid #334155; color:#f8fafc; padding:6px 14px; border-radius:16px; font-weight:600; font-size:0.8rem; cursor:pointer;">🌐 বাংলা</button>
+                    </div>
+                </div>
+
+                <!-- Ribbon Navigation Tabs -->
+                <div class="proto-ribbon">
+                    <button class="proto-pill active" onclick="pSwitchTab('p-mod-1', this)" id="pm-1">1. 100 Unique Items</button>
+                    <button class="proto-pill" onclick="pSwitchTab('p-mod-2', this)" id="pm-2">2. Visual & Voice AI Radar</button>
+                    <button class="proto-pill" onclick="pSwitchTab('p-mod-3', this)" id="pm-3">3. AI Review Audit</button>
+                    <button class="proto-pill" onclick="pSwitchTab('p-mod-4', this)" id="pm-4">4. Live GPS & Fleet Radar</button>
+                    <button class="proto-pill" onclick="pSwitchTab('p-mod-5', this)" id="pm-5">5. AI Bargain Engine</button>
+                </div>
+
+                <!-- Prototype Search Toolbar -->
+                <div style="padding:12px 20px; border-bottom:1px solid #1e293b; display:flex; gap:10px; background:#0b1329;">
+                    <input type="text" id="p-search-input" onkeyup="pFilterProducts()" placeholder="Search 100 unique items (e.g. honey, mango, coffee, hilsa, headset, olive oil, shirt, rice)..." style="flex:1; border:1px solid #334155; background:#1e293b; color:white; border-radius:20px; padding:8px 18px; font-size:0.9rem; outline:none; transition: 0.3s;">
+                    <button onclick="pVoice()" title="Voice Search" style="background:#1e293b; border:1px solid #334155; color:white; border-radius:50%; width:38px; height:38px; cursor:pointer; font-size:1rem; transition: 0.2s;">🎤</button>
+                    <button onclick="pScan()" title="Image Visual Scan" style="background:#1e293b; border:1px solid #334155; color:white; border-radius:50%; width:38px; height:38px; cursor:pointer; font-size:1rem; transition: 0.2s;">📷</button>
+                </div>
+
+                <!-- Interactive Modules Container -->
+                <div class="proto-content-area" id="p-content-area">
+                    
+                    <!-- MODULE 1: Vendors Hub (100 Product Grid) -->
+                    <div id="p-mod-1" class="p-tab-content" style="display:block;">
+                        <div id="p-status-banner" style="display:none; background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981; padding:10px 16px; border-radius:10px; font-size:0.9rem; font-weight:700; margin-bottom:16px; animation: popIn 0.3s forwards;">
+                            ✨ AI Match Result Displayed
+                        </div>
+
+                        <div class="proto-grid" id="p-product-grid">
+                            <!-- JS dynamically renders 100 unique product cards -->
+                        </div>
+                    </div>
+
+                    <!-- MODULE 2: Animated Visual & Voice AI Search Radar -->
+                    <div id="p-mod-2" class="p-tab-content" style="display:none; padding:40px 20px; text-align:center;">
+                        <div style="background:#1e293b; border:2px dashed #10b981; border-radius:16px; padding:40px; max-width:600px; margin:0 auto 20px auto; position:relative; overflow:hidden;">
+                            <div class="radar-box" id="radar-anim-box" style="display:none;">
+                                <div class="radar-circle"></div>
+                                <div class="radar-circle"></div>
+                                <div class="radar-circle"></div>
+                                <div id="p-scan-icon" style="font-size:2.5rem; z-index:5;">🔍</div>
+                            </div>
+                            <div id="p-static-icon" style="font-size:3rem; margin-bottom:10px;">📸</div>
+                            <div id="p-scan-msg" style="font-size:1.1rem; color:#cbd5e1; font-weight:600;">Trigger visual camera scan or voice audio recognition</div>
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:16px;">
+                            <button class="proto-btn" style="width:auto; padding:12px 24px;" onclick="pScan()">Camera Visual Scan</button>
+                            <button class="proto-btn" style="width:auto; padding:12px 24px; background:#6366f1;" onclick="pVoice()">Voice Command Simulation</button>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 3: Review Analysis -->
+                    <div id="p-mod-3" class="p-tab-content" style="display:none;">
+                        <div style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; color:#10b981; font-weight:700; padding:8px 16px; border-radius:20px; font-size:0.85rem; display:inline-block; margin-bottom:16px;">🛡️ AI Trust Score: 99.4% Authentic</div>
+                        <h3 style="font-size:1.2rem; margin-bottom:12px; color:white;">Catalog Audit Pipeline</h3>
+                        <div style="background:#1e293b; border:1px solid #334155; padding:16px; border-radius:10px; color:#cbd5e1; font-size:0.95rem; margin-bottom:12px;">
+                            <strong style="color:#10b981;">Verified Customer Sentiment:</strong> 100 Unique Products synchronized across 18 local Dhaka neighborhood stores.
+                        </div>
+                    </div>
+
+                    <!-- MODULE 4: Dynamic Live GPS Tracking & Active Staff Fleet -->
+                    <div id="p-mod-4" class="p-tab-content" style="display:none;">
+                        
+                        <!-- Staff Fleet Selector Bar -->
+                        <div style="margin-bottom:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <h3 style="font-size:1.1rem; color:#f8fafc; font-weight:700;">🚴 Active Neighborhood Staff & Delivery Fleet</h3>
+                                <span style="background:rgba(16, 185, 129, 0.2); color:#10b981; font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:12px;">● 3 Staff Online</span>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:12px;">
+                                <div class="staff-chip active" id="chip-staff-1" onclick="selectStaff(1)">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80" class="staff-avatar" alt="Rider">
+                                    <div>
+                                        <div style="font-size:0.88rem; font-weight:700; color:white;">Tariqul Islam</div>
+                                        <div style="font-size:0.75rem; color:#10b981;">In Transit • Order #DH-881</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">🛵 E-Bike Hub #3</div>
+                                    </div>
+                                </div>
+
+                                <div class="staff-chip" id="chip-staff-2" onclick="selectStaff(2)">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80" class="staff-avatar" alt="Rider">
+                                    <div>
+                                        <div style="font-size:0.88rem; font-weight:700; color:white;">Anisur Rahman</div>
+                                        <div style="font-size:0.75rem; color:#38bdf8;">Picking Up • Order #DH-892</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">🚲 Express Bicycle</div>
+                                    </div>
+                                </div>
+
+                                <div class="staff-chip" id="chip-staff-3" onclick="selectStaff(3)">
+                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80" class="staff-avatar" alt="Rider">
+                                    <div>
+                                        <div style="font-size:0.88rem; font-weight:700; color:white;">Tanvir Hossain</div>
+                                        <div style="font-size:0.75rem; color:#a855f7;">Stationed • Hub Dispatcher</div>
+                                        <div style="font-size:0.7rem; color:#94a3b8;">🏬 Gulshan Hub Manager</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Telemetry Stats Dashboard -->
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:16px;">
+                            <div class="telemetry-badge">
+                                <label>Live Lat/Lng</label>
+                                <span id="gps-coords">23.8103, 90.4125</span>
+                            </div>
+                            <div class="telemetry-badge">
+                                <label>Speed</label>
+                                <span id="gps-speed">24.5 km/h</span>
+                            </div>
+                            <div class="telemetry-badge">
+                                <label>ETA Countdown</label>
+                                <span id="gps-eta">04m 32s</span>
+                            </div>
+                            <div class="telemetry-badge">
+                                <label>Distance Left</label>
+                                <span id="gps-dist">1.2 km</span>
+                            </div>
+                            <div class="telemetry-badge">
+                                <label>Staff Telemetry</label>
+                                <span id="gps-battery">🔋 92% • 5G</span>
+                            </div>
+                        </div>
+
+                        <!-- Animated Map Canvas Container -->
+                        <div style="position:relative; height:340px; background:#0f172a; border-radius:14px; border:1px solid #334155; overflow:hidden;">
+                            <svg id="map-svg" width="100%" height="100%" style="background:#090d16;">
+                                <defs>
+                                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="1"/>
+                                    </pattern>
+                                    <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#38bdf8" />
+                                        <stop offset="100%" stop-color="#10b981" />
+                                    </linearGradient>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#grid)" />
+
+                                <!-- Animated Route Path -->
+                                <path id="route-path" d="M 60,260 Q 200,80 400,200 T 750,100" fill="none" stroke="url(#pathGrad)" stroke-width="5" stroke-dasharray="8,6" />
+
+                                <!-- Vendor Hub Icon -->
+                                <g transform="translate(50, 245)">
+                                    <circle cx="15" cy="15" r="18" fill="#3b82f6" opacity="0.3" />
+                                    <circle cx="15" cy="15" r="10" fill="#2563eb" />
+                                    <text x="15" y="20" font-size="12" text-anchor="middle" fill="white">🏬</text>
+                                    <text x="15" y="-6" font-size="10" font-weight="bold" text-anchor="middle" fill="#93c5fd">Vendor Hub</text>
+                                </g>
+
+                                <!-- Destination Icon -->
+                                <g transform="translate(735, 85)">
+                                    <circle cx="15" cy="15" r="18" fill="#10b981" opacity="0.3" />
+                                    <circle cx="15" cy="15" r="10" fill="#10b981" />
+                                    <text x="15" y="20" font-size="12" text-anchor="middle" fill="white">🏠</text>
+                                    <text x="15" y="-6" font-size="10" font-weight="bold" text-anchor="middle" fill="#6ee7b7">Customer</text>
+                                </g>
+
+                                <!-- Dynamic Moving Rider Staff Marker -->
+                                <g id="rider-marker" transform="translate(60, 245)">
+                                    <circle cx="0" cy="0" r="22" fill="#10b981" opacity="0.25">
+                                        <animate attributeName="r" values="18;28;18" dur="1.5s" repeatCount="indefinite"/>
+                                    </circle>
+                                    <circle cx="0" cy="0" r="12" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="0" y="4" font-size="11" text-anchor="middle" fill="white">🚴</text>
+                                    
+                                    <rect x="-55" y="-38" width="110" height="22" rx="6" fill="#0b1329" stroke="#10b981" stroke-width="1"/>
+                                    <text id="marker-name" x="0" y="-24" font-size="10" font-weight="bold" text-anchor="middle" fill="#10b981">Tariqul Islam</text>
+                                </g>
+                            </svg>
+
+                            <div style="position:absolute; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:center; background:rgba(11,19,41,0.85); backdrop-filter:blur(8px); padding:10px 16px; border-radius:10px; border:1px solid #334155;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 8px #10b981;"></span>
+                                    <span id="active-staff-title" style="font-size:0.85rem; font-weight:700; color:white;">Tracking Tariqul Islam (In Transit)</span>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button onclick="toggleGPSSimulation()" id="btn-toggle-sim" style="background:#10b981; color:#000; border:none; padding:5px 12px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer;">Pause Dynamic Motion</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MODULE 5: AI Bargain Assistant -->
+                    <div id="p-mod-5" class="p-tab-content" style="display:none;">
+                        <div style="background:rgba(139, 92, 246, 0.15); border:1px solid #8b5cf6; border-radius:12px; padding:20px; color:#c4b5fd; margin-bottom:16px;">
+                            <h4 style="font-size:1.1rem; margin-bottom:6px; color:white;">🤖 Automated AI Bargain Engine</h4>
+                            <p style="font-size:0.9rem;">Bulk purchase auto-negotiation enabled across all 100 unique products.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: Conclusion & Q/A -->
+        <div class="slide">
+            <div class="slide-tag">11 / Wrap Up</div>
+            <h2 class="slide-title">Conclusion & Q&A</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color:#10b981;">Summary</h3>
+                    <ul>
+                        <li>Empowers local physical vendors with AI discovery.</li>
+                        <li>100 Unique, relevant products with accurate high-res imagery integrated.</li>
+                        <li>Dynamic real-time GPS staff tracking and telemetry.</li>
+                    </ul>
+                </div>
+                <div class="card" style="text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <h2 style="font-size:2.5rem; color:#38bdf8; margin-bottom:10px;">Thank You!</h2>
+                    <p style="color:#cbd5e1;">Questions & Discussion</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Slide Deck Footer Controls -->
+    <div class="deck-controls">
+        <button class="nav-btn" onclick="prevSlide()">← Previous</button>
+        <span class="slide-indicator" id="slide-indicator">Slide 1 / 11</span>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicator = document.getElementById('slide-indicator');
+
+        function updateSlide() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlide);
+            });
+            indicator.innerText = `Slide ${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+            else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+        });
+
+        /* --- 100 ACCURATE, UNIQUE PRODUCTS WITH SPECIFIC RELEVANT IMAGES --- */
+        const productDataset = [
+            // 1-10: Organic Produce & Sweets
+            { id: 1, name: "Sundarban Natural Organic Honey", price: 550, vendor: "Rahman Grocery Hub", key: "honey pure organic sundarban jar", img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=500&q=80", conf: "99.2%" },
+            { id: 2, name: "Rajshahi Premium Fazli Mangoes", price: 380, vendor: "Green Fruit Corner", key: "mango rajshahi fresh fruit yellow", img: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=500&q=80", conf: "98.7%" },
+            { id: 3, name: "Sylhet Black Tea Leaves Jar", price: 240, vendor: "Srimangal Tea Stall", key: "tea black leaves organic jar srimangal", img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80", conf: "97.5%" },
+            { id: 4, name: "Dinajpur Katari Bhog Rice 5kg", price: 420, vendor: "Al-Madina Rice Store", key: "rice katari bhog grain dinajpur bag", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80", conf: "98.1%" },
+            { id: 5, name: "Fresh Gala Red Apples 1kg", price: 280, vendor: "Fresh Fruit Mart", key: "apple red gala fresh fruit", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500&q=80", conf: "99.0%" },
+            { id: 6, name: "Organic Cavendish Bananas", price: 110, vendor: "Popular Produce", key: "banana yellow organic fruit bunch", img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500&q=80", conf: "98.3%" },
+            { id: 7, name: "Imported Seedless Green Grapes", price: 340, vendor: "Green Fruit Corner", key: "grapes green seedless fresh fruit", img: "https://images.unsplash.com/photo-1596368708380-42fe205e3ee1?w=500&q=80", conf: "97.9%" },
+            { id: 8, name: "Ripe Red Tomatoes 1kg", price: 85, vendor: "Vegetable Bazaar", key: "tomato red vegetable fresh ripe", img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&q=80", conf: "98.5%" },
+            { id: 9, name: "Crunchy Farm Carrots 1kg", price: 70, vendor: "Vegetable Bazaar", key: "carrot orange fresh vegetable crunchy", img: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=500&q=80", conf: "98.2%" },
+            { id: 10, name: "Fresh Crunchy Green Cucumbers", price: 60, vendor: "Vegetable Bazaar", key: "cucumber green vegetable fresh", img: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=500&q=80", conf: "97.6%" },
+
+            // 11-20: Coffee & Artisanal Beverages
+            { id: 11, name: "Roasted Espresso Coffee Beans", price: 720, vendor: "North End Roastery", key: "coffee beans espresso roasted jar", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&q=80", conf: "99.1%" },
+            { id: 12, name: "Artisanal Cold Brew Coffee Bottle", price: 210, vendor: "Coffee House Gulshan", key: "cold brew coffee drink bottle iced", img: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&q=80", conf: "98.4%" },
+            { id: 13, name: "Japanese Matcha Green Tea Powder", price: 890, vendor: "Imported Tea Hub", key: "matcha green tea powder drink organic", img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500&q=80", conf: "98.8%" },
+            { id: 14, name: "Fresh Natural Coconut Water", price: 90, vendor: "Coastal Refreshments", key: "coconut water drink natural fresh bottle", img: "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=500&q=80", conf: "97.8%" },
+            { id: 15, name: "Organic Pressed Guava Juice", price: 160, vendor: "Juice Bar Banani", key: "guava juice bottle fresh drink fruit", img: "https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=500&q=80", conf: "97.2%" },
+            { id: 16, name: "Freshly Squeezed Orange Juice", price: 180, vendor: "Juice Bar Banani", key: "orange juice fresh fruit drink glass", img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500&q=80", conf: "98.9%" },
+            { id: 17, name: "Herbal Chamomile Flower Tea", price: 320, vendor: "Wellness Herbals", key: "chamomile tea flower herbal cup", img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=500&q=80", conf: "98.0%" },
+            { id: 18, name: "Iced Mocha Latte Bottle", price: 230, vendor: "North End Roastery", key: "iced mocha latte coffee bottle chocolate", img: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&q=80", conf: "98.6%" },
+            { id: 19, name: "Sparkling Lemon Water", price: 75, vendor: "Popular Groceries", key: "sparkling lemon water drink soda bottle", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80", conf: "97.4%" },
+            { id: 20, name: "Organic Pomegranate Juice Bottle", price: 290, vendor: "Juice Bar Banani", key: "pomegranate juice bottle red drink", img: "https://images.unsplash.com/photo-1546173159-315724a31696?w=500&q=80", conf: "98.1%" },
+
+            // 21-30: Dairy, Bakery & Eggs
+            { id: 21, name: "Aarong Fresh Pasteurized Whole Milk", price: 95, vendor: "Aarong Dairy Outlet", key: "milk pasteurized whole dairy bottle white", img: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&q=80", conf: "99.3%" },
+            { id: 22, name: "Artisanal Fresh Sourdough Bread", price: 220, vendor: "Bake House Dhanmondi", key: "sourdough bread artisan loaf baked", img: "https://images.unsplash.com/photo-1585478259715-876a6a81ae08?w=500&q=80", conf: "98.9%" },
+            { id: 23, name: "Fresh Salted Creamery Butter", price: 180, vendor: "Aarong Dairy Outlet", key: "butter creamery salted dairy block", img: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=500&q=80", conf: "98.5%" },
+            { id: 24, name: "Aged Cheddar Cheese Block", price: 450, vendor: "Gourmet Cheese Store", key: "cheese cheddar block dairy food", img: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500&q=80", conf: "98.2%" },
+            { id: 25, name: "Bogura Traditional Sweetened Curd (Mishti Doi)", price: 260, vendor: "Bogura Doi Ghar", key: "curd doi mishti sweet yogurt pot", img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500&q=80", conf: "99.0%" },
+            { id: 26, name: "Farm Fresh Organic Brown Eggs 12pcs", price: 155, vendor: "Rahman Grocery Hub", key: "eggs brown farm fresh carton dozen", img: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=500&q=80", conf: "99.1%" },
+            { id: 27, name: "Greek Plain Yogurt Tub", price: 240, vendor: "Aarong Dairy Outlet", key: "greek yogurt tub dairy plain white", img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500&q=80", conf: "97.7%" },
+            { id: 28, name: "Flaky Golden Butter Croissant", price: 130, vendor: "Bake House Dhanmondi", key: "croissant butter baked bakery pastry", img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&q=80", conf: "98.8%" },
+            { id: 29, name: "Double Chocolate Chip Cookies", price: 210, vendor: "Bake House Dhanmondi", key: "cookies chocolate chip baked sweet", img: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=500&q=80", conf: "98.6%" },
+            { id: 30, name: "Soft Whole Wheat Bread Loaf", price: 90, vendor: "Bake House Dhanmondi", key: "bread wheat sliced loaf bakery", img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80", conf: "98.1%" },
+
+            // 31-40: Sweets, Chocolates & Snacks
+            { id: 31, name: "Handcrafted Dark Chocolate Bar 70%", price: 320, vendor: "Choco Crafters", key: "chocolate dark bar cacao sweet", img: "https://images.unsplash.com/photo-1511381939415-e44015466834?w=500&q=80", conf: "99.2%" },
+            { id: 32, name: "Salted Roasted Cashew Nuts Jar", price: 650, vendor: "Dry Fruit Junction", key: "cashew nuts roasted salted jar", img: "https://images.unsplash.com/photo-1536591375315-1988d6960927?w=500&q=80", conf: "98.5%" },
+            { id: 33, name: "Spicy Bengali Chanachur Mix", price: 140, vendor: "Dhaka Snack Corner", key: "chanachur mix spicy snack spicy", img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281282?w=500&q=80", conf: "97.9%" },
+            { id: 34, name: "Handmade Sea Salt Potato Chips", price: 120, vendor: "Dhaka Snack Corner", key: "chips potato crunchy snack salted", img: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=500&q=80", conf: "98.4%" },
+            { id: 35, name: "Roasted Almonds with Honey", price: 780, vendor: "Dry Fruit Junction", key: "almonds roasted honey nuts jar", img: "https://images.unsplash.com/photo-1508061252966-dfd33f43a252?w=500&q=80", conf: "98.7%" },
+            { id: 36, name: "Premium Dry Fruit & Raisins Mix", price: 820, vendor: "Dry Fruit Junction", key: "dry fruit raisins nuts mix jar", img: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?w=500&q=80", conf: "98.3%" },
+            { id: 37, name: "Artisanal Hazelnut Truffle Box", price: 540, vendor: "Choco Crafters", key: "truffle chocolate hazelnut candy box", img: "https://images.unsplash.com/photo-1548907040-4baa42d10919?w=500&q=80", conf: "99.0%" },
+            { id: 38, name: "Crispy Vanilla Waffles Pack", price: 160, vendor: "Bake House Dhanmondi", key: "waffles vanilla waffle sweet baked", img: "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=500&q=80", conf: "97.8%" },
+            { id: 39, name: "Caramel Popcorn Tub", price: 190, vendor: "Dhaka Snack Corner", key: "popcorn caramel sweet snack tub", img: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=500&q=80", conf: "98.1%" },
+            { id: 40, name: "Classic Pistachio Sweet Halwa", price: 380, vendor: "Premium Sweets Utshob", key: "halwa pistachio sweet dessert indian", img: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=500&q=80", conf: "98.0%" },
+
+            // 41-50: Fresh Meat & Seafood
+            { id: 41, name: "Fresh Padma Hilsa Fish (Ilish 1.2kg)", price: 1450, vendor: "Mawa Hilsa Fisheries", key: "hilsa ilish fish padma seafood fresh", img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=500&q=80", conf: "99.5%" },
+            { id: 42, name: "Fresh Farm Organic Whole Chicken", price: 310, vendor: "Bengal Meat Express", key: "chicken whole organic fresh meat poultry", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=500&q=80", conf: "98.9%" },
+            { id: 43, name: "Jumbo Fresh Water Tiger Prawns 500g", price: 890, vendor: "Mawa Hilsa Fisheries", key: "prawns shrimp tiger seafood fresh", img: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=500&q=80", conf: "99.1%" },
+            { id: 44, name: "Prime Boneless Beef Cubes 1kg", price: 820, vendor: "Bengal Meat Express", key: "beef meat boneless prime red meat", img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=500&q=80", conf: "98.7%" },
+            { id: 45, name: "Fresh Mutton Rib Cutlets 1kg", price: 1150, vendor: "Bengal Meat Express", key: "mutton meat rib chops cutlet fresh", img: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&q=80", conf: "98.6%" },
+            { id: 46, name: "Norwegian Fresh Salmon Fillet 250g", price: 980, vendor: "Seafood World Banani", key: "salmon fish fillet pink seafood fresh", img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&q=80", conf: "99.2%" },
+            { id: 47, name: "Rui Fish Fresh Steaks 1kg", price: 420, vendor: "Mawa Hilsa Fisheries", key: "rui fish steak freshwater seafood", img: "https://images.unsplash.com/photo-1510130387422-82ebd3c13037?w=500&q=80", conf: "97.9%" },
+            { id: 48, name: "Chicken Breast Boneless Cutlets 1kg", price: 480, vendor: "Bengal Meat Express", key: "chicken breast cutlets boneless poultry", img: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=500&q=80", conf: "98.8%" },
+            { id: 49, name: "Fresh Sea Bass Whole Fish", price: 750, vendor: "Seafood World Banani", key: "sea bass fish whole seafood fresh", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&q=80", conf: "98.0%" },
+            { id: 50, name: "Fresh Katla Fish Head & Steaks", price: 390, vendor: "Mawa Hilsa Fisheries", key: "katla fish fresh cutlets seafood", img: "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=500&q=80", conf: "97.6%" },
+
+            // 51-60: Oils, Spices & Pantry Basics
+            { id: 51, name: "Cold Pressed Extra Virgin Olive Oil", price: 920, vendor: "Imported Mart Gulshan", key: "olive oil extra virgin bottle cooking oil", img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&q=80", conf: "99.4%" },
+            { id: 52, name: "Pure Mustard Oil (Shorishar Tel) 1L", price: 290, vendor: "Rahman Grocery Hub", key: "mustard oil shorisha cooking oil bottle", img: "https://images.unsplash.com/photo-1612582223769-1c97f4fa11ca?w=500&q=80", conf: "98.8%" },
+            { id: 53, name: "Himalayan Pink Salt Grinder", price: 240, vendor: "Gourmet Pantry", key: "salt pink himalayan grinder spices", img: "https://images.unsplash.com/photo-1518110168401-f2877ee2c8ab?w=500&q=80", conf: "98.2%" },
+            { id: 54, name: "Organic Turmeric Powder Jar", price: 160, vendor: "Rahman Grocery Hub", key: "turmeric powder spice yellow jar organic", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80", conf: "98.5%" },
+            { id: 55, name: "Red Chili Flakes Shaker", price: 140, vendor: "Gourmet Pantry", key: "chili flakes red spice shaker jar", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80", conf: "97.9%" },
+            { id: 56, name: "Pure Cow Ghee Jar 500g", price: 680, vendor: "Aarong Dairy Outlet", key: "ghee cow butter jar pure dairy", img: "https://images.unsplash.com/photo-1601600576337-c1d8a0d1373c?w=500&q=80", conf: "99.0%" },
+            { id: 57, name: "Whole Rolled Oats 1kg Pack", price: 340, vendor: "Popular Groceries", key: "oats rolled breakfast healthy grain pack", img: "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=500&q=80", conf: "98.3%" },
+            { id: 58, name: "Organic Unrefined Brown Sugar", price: 130, vendor: "Rahman Grocery Hub", key: "sugar brown organic cane sweet bag", img: "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=500&q=80", conf: "98.1%" },
+            { id: 59, name: "Pure Organic Virgin Coconut Oil", price: 480, vendor: "Wellness Herbals", key: "coconut oil virgin organic jar skin hair", img: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500&q=80", conf: "98.7%" },
+            { id: 60, name: "Natural Apple Cider Vinegar", price: 390, vendor: "Wellness Herbals", key: "vinegar apple cider bottle natural drink", img: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&q=80", conf: "98.4%" },
+
+            // 61-70: Gadgets, Electronics & Accessories
+            { id: 61, name: "Wireless Noise Canceling Headphones", price: 3400, vendor: "Gadget World Banani", key: "headphones wireless bluetooth noise canceling headset audio", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80", conf: "99.6%" },
+            { id: 62, name: "Portable Bluetooth Speaker Waterproof", price: 2100, vendor: "Gadget World Banani", key: "speaker bluetooth portable audio sound music", img: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500&q=80", conf: "98.9%" },
+            { id: 63, name: "Smart Fitness Tracker Watch", price: 2800, vendor: "Tech Hub Uttara", key: "watch smartwatch fitness tracker black digital", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80", conf: "99.1%" },
+            { id: 64, name: "Ergonomic Optical Wireless Mouse", price: 850, vendor: "Tech Hub Uttara", key: "mouse wireless ergonomic computer optical desktop", img: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&q=80", conf: "98.3%" },
+            { id: 65, name: "USB-C Fast Charging Power Bank 20000mAh", price: 1950, vendor: "Gadget World Banani", key: "powerbank charger portable USB-C battery fast", img: "https://images.unsplash.com/photo-1609592424009-f806408f2a6a?w=500&q=80", conf: "98.8%" },
+            { id: 66, name: "Mechanical RGB Gaming Keyboard", price: 3200, vendor: "Tech Hub Uttara", key: "keyboard mechanical gaming RGB desktop keycaps", img: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80", conf: "99.0%" },
+            { id: 67, name: "True Wireless Stereo Earbuds", price: 1850, vendor: "Gadget World Banani", key: "earbuds wireless audio bluetooth earphones white", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&q=80", conf: "98.7%" },
+            { id: 68, name: "Full HD 1080p Desktop Webcam", price: 2400, vendor: "Tech Hub Uttara", key: "webcam camera HD video streaming desktop", img: "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=500&q=80", conf: "98.2%" },
+            { id: 69, name: "Dimmable LED Desk Reading Lamp", price: 1250, vendor: "Home & Light Hub", key: "lamp desk LED light reading adjustable", img: "https://images.unsplash.com/photo-1534073828943-f801091bb18c?w=500&q=80", conf: "97.9%" },
+            { id: 70, name: "High Speed USB 3.0 Flash Drive 128GB", price: 950, vendor: "Tech Hub Uttara", key: "pendrive USB flash drive memory storage 128GB", img: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80", conf: "98.0%" },
+
+            // 71-80: Personal Care, Beauty & Skincare
+            { id: 71, name: "Herbal Aloe Vera Organic Shampoo", price: 420, vendor: "Beauty Care Outlet", key: "shampoo herbal aloe vera bottle hair care", img: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=500&q=80", conf: "98.8%" },
+            { id: 72, name: "Handmade Shea Butter Soap Bar", price: 190, vendor: "Beauty Care Outlet", key: "soap bar shea butter handmade organic skincare", img: "https://images.unsplash.com/photo-1607006344380-b6775a0824a7?w=500&q=80", conf: "98.4%" },
+            { id: 73, name: "Hydrating Facial Foam Cleanser", price: 380, vendor: "Beauty Care Outlet", key: "facewash face cleanser foam skincare wash", img: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=80", conf: "98.6%" },
+            { id: 74, name: "Herbal Ayurvedic Hair Oil", price: 290, vendor: "Wellness Herbals", key: "hair oil herbal ayurvedic bottle hair care", img: "https://images.unsplash.com/photo-1608248597261-e4d09165811a?w=500&q=80", conf: "98.0%" },
+            { id: 75, name: "French Lavender Essential Oil", price: 550, vendor: "Wellness Herbals", key: "essential oil lavender fragrance bottle aroma", img: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500&q=80", conf: "98.9%" },
+            { id: 76, name: "Sunscreen Broad Spectrum SPF 50", price: 620, vendor: "Beauty Care Outlet", key: "sunscreen lotion SPF50 skincare sun protection", img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&q=80", conf: "99.1%" },
+            { id: 77, name: "Natural Mint Moisture Lip Balm", price: 120, vendor: "Beauty Care Outlet", key: "lip balm mint care lip stick moist", img: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=500&q=80", conf: "97.5%" },
+            { id: 78, name: "Organic Rose Water Facial Toner", price: 270, vendor: "Wellness Herbals", key: "rose water toner mist face spray mist bottle", img: "https://images.unsplash.com/photo-1617897903246-719242758050?w=500&q=80", conf: "98.3%" },
+            { id: 79, name: "Alcohol Hand Sanitizer Gel 250ml", price: 150, vendor: "Popular Pharmacy", key: "sanitizer gel hand wash hygiene bottle", img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80", conf: "98.7%" },
+            { id: 80, name: "Activated Charcoal Clay Face Mask", price: 410, vendor: "Beauty Care Outlet", key: "charcoal face mask clay skincare wash jar", img: "https://images.unsplash.com/photo-1567928269937-ae14101e4d38?w=500&q=80", conf: "98.2%" },
+
+            // 81-90: Clothing, Fashion & Apparel
+            { id: 81, name: "Men's Casual Black Cotton T-Shirt", price: 550, vendor: "Dhaka Fashion Hub", key: "tshirt t-shirt cotton black shirt apparel mens", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", conf: "99.4%" },
+            { id: 82, name: "Classic Slim Fit Blue Denim Jeans", price: 1450, vendor: "Dhaka Fashion Hub", key: "jeans denim pants blue trousers mens", img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500&q=80", conf: "99.0%" },
+            { id: 83, name: "Formal White Cotton Button Shirt", price: 1100, vendor: "Dhaka Fashion Hub", key: "shirt formal white cotton button formal", img: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=500&q=80", conf: "98.8%" },
+            { id: 84, name: "Traditional Embroidered Punjabi", price: 1850, vendor: "Aarong Fashion Outlet", key: "punjabi panjabi ethnic traditional embroidery mens", img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500&q=80", conf: "99.3%" },
+            { id: 85, name: "Breathable Running Sports Sneakers", price: 2900, vendor: "Footwear World", key: "sneakers shoes running sports footwear athletic", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80", conf: "99.5%" },
+            { id: 86, name: "Genuine Leather Bifold Wallet", price: 890, vendor: "Leather Crafts Dhaka", key: "wallet leather bifold brown mens accessory", img: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&q=80", conf: "98.6%" },
+            { id: 87, name: "Classic Navy Blue Polo Shirt", price: 750, vendor: "Dhaka Fashion Hub", key: "polo shirt blue collar cotton mens", img: "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=500&q=80", conf: "98.4%" },
+            { id: 88, name: "Womens Floral Print Summer Dress", price: 1650, vendor: "Aarong Fashion Outlet", key: "dress floral summer womens fashion print", img: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&q=80", conf: "98.9%" },
+            { id: 89, name: "Winter Knit Beanie Cap Black", price: 320, vendor: "Dhaka Fashion Hub", key: "beanie cap hat winter knit black", img: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=500&q=80", conf: "97.8%" },
+            { id: 90, name: "Cushioned Cotton Sports Socks 3-Pack", price: 280, vendor: "Footwear World", key: "socks sports cotton 3pack white athletic", img: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=500&q=80", conf: "98.1%" },
+
+            // 91-100: Stationery, Home Decor & Household
+            { id: 91, name: "Hardcover Leather Journal Notebook", price: 420, vendor: "Stationery Mart", key: "notebook journal leather hardcover diary write", img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80", conf: "98.9%" },
+            { id: 92, name: "Fine Tip Colored Gel Pen Set 10pcs", price: 210, vendor: "Stationery Mart", key: "pen gel pens colored writing stationery set", img: "https://images.unsplash.com/photo-1585336261026-6757f577d669?w=500&q=80", conf: "98.2%" },
+            { id: 93, name: "Ceramic Coffee Mug Matte Black", price: 260, vendor: "Home Decor Corner", key: "mug coffee ceramic black cup drinkware", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&q=80", conf: "99.0%" },
+            { id: 94, name: "Insulated Stainless Steel Water Bottle 750ml", price: 680, vendor: "Home Decor Corner", key: "bottle water stainless steel flask insulated thermo", img: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&q=80", conf: "99.2%" },
+            { id: 95, name: "Scented Vanilla Soy Wax Candle", price: 450, vendor: "Home Decor Corner", key: "candle soy wax scented vanilla jar decor", img: "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&q=80", conf: "98.7%" },
+            { id: 96, name: "Wooden Desk Accessories Organizer", price: 590, vendor: "Stationery Mart", key: "organizer wooden desk storage stand pencil holder", img: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=500&q=80", conf: "98.0%" },
+            { id: 97, name: "Potted Indoor Succulent Plant", price: 320, vendor: "Green Nursery Hub", key: "plant succulent potted indoor green flora pot", img: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=500&q=80", conf: "99.1%" },
+            { id: 98, name: "Microfiber Towels Cleaning Cloth 4-Pack", price: 250, vendor: "Home Essentials Mart", key: "towel cloth microfiber cleaning wipe house", img: "https://images.unsplash.com/photo-1584305574647-0cc949a2da9f?w=500&q=80", conf: "97.9%" },
+            { id: 99, name: "Eco-Friendly Canvas Grocery Tote Bag", price: 180, vendor: "Home Essentials Mart", key: "bag tote canvas eco shopping bag grocery", img: "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&q=80", conf: "98.4%" },
+            { id: 100, name: "Minimalist Wooden Desk Calendar", price: 290, vendor: "Stationery Mart", key: "calendar desk wooden block date office decor", img: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=500&q=80", conf: "98.1%" }
+        ];
+
+        let pCartCount = 0;
+        let pIsBangla = false;
+
+        function init100Products() {
+            const grid = document.getElementById('p-product-grid');
+            grid.innerHTML = '';
+            
+            productDataset.forEach((prod, index) => {
+                const card = document.createElement('div');
+                card.className = 'proto-card';
+                card.id = `card-p-${prod.id}`;
+                card.setAttribute('data-keywords', `${prod.name.toLowerCase()} ${prod.key}`);
+                card.style.animationDelay = `${(index % 12) * 0.02}s`;
+
+                card.innerHTML = `
+                    <span class="ai-match-tag" id="tag-p-${prod.id}">${prod.conf} Match</span>
+                    <img class="proto-img" src="${prod.img}" alt="${prod.name}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80';">
+                    <div class="proto-card-body">
+                        <h4 style="font-size:0.88rem; font-weight:700; margin-bottom:4px; color:#f8fafc; line-height:1.3;">${prod.name}</h4>
+                        <div style="font-size:0.78rem; color:#10b981; font-weight:bold; margin-bottom:8px;">${prod.vendor} • ৳${prod.price}</div>
+                        <button class="proto-btn" onclick="pAddCart('${prod.name}')">Add to Cart</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function pSwitchTab(tabId, el) {
+            document.querySelectorAll('.p-tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.proto-pill').forEach(p => p.classList.remove('active'));
+
+            document.getElementById(tabId).style.display = 'block';
+            if(el) el.classList.add('active');
+        }
+
+        function pAddCart(item) {
+            pCartCount++;
+            document.getElementById('p-cart').innerText = pCartCount;
+            pShowToast("Added " + item + " to cart!");
+        }
+
+        function pFilterProducts() {
+            const query = document.getElementById('p-search-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.proto-card');
+
+            cards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords').toLowerCase();
+                if (query === '' || keywords.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function pScan() {
+            pSwitchTab('p-mod-2', document.getElementById('pm-2'));
+            document.getElementById('p-static-icon').style.display = 'none';
+            document.getElementById('radar-anim-box').style.display = 'flex';
+            
+            const msg = document.getElementById('p-scan-msg');
+            msg.innerText = "Analyzing camera stream & matching feature vectors across 100 unique products...";
+
+            setTimeout(() => {
+                document.getElementById('radar-anim-box').style.display = 'none';
+                document.getElementById('p-static-icon').style.display = 'block';
+                document.getElementById('p-static-icon').innerText = "🍯";
+                msg.innerText = "Visual Object Match: Sundarban Natural Organic Honey (99.2% confidence)";
+                
+                document.getElementById('p-search-input').value = "honey";
+                pHighlightProduct('card-p-1', 'tag-p-1', "Visual Scan Match: Sundarban Organic Honey Identified!");
+            }, 1400);
+        }
+
+        function pVoice() {
+            pSwitchTab('p-mod-2', document.getElementById('pm-2'));
+            document.getElementById('p-static-icon').style.display = 'none';
+            document.getElementById('radar-anim-box').style.display = 'flex';
+            
+            const msg = document.getElementById('p-scan-msg');
+            msg.innerText = "Listening to audio & processing regional dialect NLP...";
+
+            setTimeout(() => {
+                document.getElementById('radar-anim-box').style.display = 'none';
+                document.getElementById('p-static-icon').style.display = 'block';
+                document.getElementById('p-static-icon').innerText = "🎧";
+                msg.innerText = "Voice Query Recognized: 'Wireless Noise Canceling Headphones'";
+                
+                document.getElementById('p-search-input').value = "headphones";
+                pHighlightProduct('card-p-61', 'tag-p-61', "Voice Recognition Match: Wireless Noise Canceling Headphones Identified!");
+            }, 1400);
+        }
+
+        function pHighlightProduct(cardId, tagId, statusMsg) {
+            pSwitchTab('p-mod-1', document.getElementById('pm-1'));
+            
+            document.querySelectorAll('.proto-card').forEach(c => {
+                c.classList.remove('ai-highlight');
+                c.style.display = 'flex';
+            });
+            document.querySelectorAll('.ai-match-tag').forEach(t => t.style.display = 'none');
+
+            const targetCard = document.getElementById(cardId);
+            const targetTag = document.getElementById(tagId);
+            const banner = document.getElementById('p-status-banner');
+
+            if (targetCard) {
+                targetCard.classList.add('ai-highlight');
+                if (targetTag) targetTag.style.display = 'block';
+                
+                banner.style.display = 'block';
+                banner.innerText = "✨ " + statusMsg;
+
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function pToggleLang() {
+            pIsBangla = !pIsBangla;
+            document.getElementById('p-lang-btn').innerText = pIsBangla ? "🌐 English" : "🌐 বাংলা";
+        }
+
+        function pShowToast(msg) {
+            alert(msg);
+        }
+
+        /* --- DYNAMIC GPS & STAFF FLEET ENGINE --- */
+        let gpsActive = true;
+        let routeProgress = 0;
+        let activeStaffId = 1;
+
+        const staffData = {
+            1: { name: "Tariqul Islam", status: "In Transit", order: "#DH-881", lat: 23.8103, lng: 90.4125, speed: 24, battery: 92, dist: 1.2 },
+            2: { name: "Anisur Rahman", status: "Picking Up", order: "#DH-892", lat: 23.8150, lng: 90.4180, speed: 18, battery: 85, dist: 2.8 },
+            3: { name: "Tanvir Hossain", status: "Stationed Hub", order: "Dispatch Manager", lat: 23.8080, lng: 90.4050, speed: 0, battery: 99, dist: 0.0 }
+        };
+
+        function selectStaff(id) {
+            activeStaffId = id;
+            document.querySelectorAll('.staff-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById(`chip-staff-${id}`).classList.add('active');
+
+            const staff = staffData[id];
+            document.getElementById('marker-name').textContent = staff.name;
+            document.getElementById('active-staff-title').textContent = `Tracking ${staff.name} (${staff.status})`;
+            
+            routeProgress = (id === 1) ? 0.3 : (id === 2 ? 0.1 : 0.85);
+            updateGPSAnimation();
+        }
+
+        function toggleGPSSimulation() {
+            gpsActive = !gpsActive;
+            const btn = document.getElementById('btn-toggle-sim');
+            btn.textContent = gpsActive ? "Pause Dynamic Motion" : "Resume Dynamic Motion";
+            btn.style.background = gpsActive ? "#10b981" : "#eab308";
+        }
+
+        function updateGPSAnimation() {
+            if (gpsActive) {
+                routeProgress = (routeProgress + 0.003) % 1;
+            }
+
+            const path = document.getElementById('route-path');
+            if (path && path.getTotalLength) {
+                const pathLength = path.getTotalLength();
+                const point = path.getPointAtLength(routeProgress * pathLength);
+                
+                const marker = document.getElementById('rider-marker');
+                if (marker) {
+                    marker.setAttribute('transform', `translate(${point.x}, ${point.y})`);
+                }
+
+                const currentStaff = staffData[activeStaffId];
+                const dynamicLat = (currentStaff.lat + (routeProgress * 0.004)).toFixed(4);
+                const dynamicLng = (currentStaff.lng + (routeProgress * 0.003)).toFixed(4);
+                const remainingSecs = Math.max(10, Math.floor((1 - routeProgress) * 320));
+                const mins = Math.floor(remainingSecs / 60);
+                const secs = remainingSecs % 60;
+
+                document.getElementById('gps-coords').textContent = `${dynamicLat}, ${dynamicLng}`;
+                document.getElementById('gps-speed').textContent = gpsActive ? `${(currentStaff.speed + Math.sin(Date.now()/500)*3).toFixed(1)} km/h` : '0.0 km/h';
+                document.getElementById('gps-eta').textContent = `${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`;
+                document.getElementById('gps-dist').textContent = `${((1 - routeProgress) * 2.5).toFixed(1)} km`;
+            }
+        }
+
+        window.onload = () => {
+            init100Products();
+            updateSlide();
+            setInterval(updateGPSAnimation, 50);
+        };
+    </script>
+</body>
+</html>
