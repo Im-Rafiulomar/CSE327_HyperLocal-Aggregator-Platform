@@ -1,0 +1,320 @@
+export type Seller = {
+  id: string;
+  name: string;
+  nameBn: string;
+  area: string;
+  rating: number;
+  isLocal: boolean;
+  verified: boolean;
+  since: string;
+  responseTime: string;
+};
+
+export type Offer = {
+  sellerId: string;
+  price: number;
+  delivery: string;
+  stock: number;
+};
+
+export type Review = {
+  id: string;
+  user: string;
+  rating: number;
+  text: string;
+  date: string;
+  suspicious?: boolean;
+  reason?: string;
+};
+
+export type Product = {
+  id: string;
+  name: string;
+  nameBn: string;
+  brand: string;
+  category: string;
+  image: string;
+  emoji: string;
+  price: number;
+  oldPrice?: number;
+  rating: number;
+  reviewCount: number;
+  description: string;
+  descriptionBn: string;
+  specs: Record<string, string>;
+  offers: Offer[];
+  reviews: Review[];
+  aiSummary: string;
+  tags: string[];
+};
+
+export const sellers: Seller[] = [
+  { id: "s1", name: "Dhanmondi Electronics", nameBn: "ধানমন্ডি ইলেকট্রনিক্স", area: "Dhanmondi, Dhaka", rating: 4.7, isLocal: true, verified: true, since: "2019", responseTime: "~12 min" },
+  { id: "s2", name: "TechHub BD Online", nameBn: "টেকহাব বিডি", area: "Nationwide", rating: 4.5, isLocal: false, verified: true, since: "2017", responseTime: "~1 hr" },
+  { id: "s3", name: "Uttara Gadget Corner", nameBn: "উত্তরা গ্যাজেট কর্নার", area: "Uttara, Dhaka", rating: 4.3, isLocal: true, verified: false, since: "2021", responseTime: "~30 min" },
+  { id: "s4", name: "Chattogram Fresh Mart", nameBn: "চট্টগ্রাম ফ্রেশ মার্ট", area: "Agrabad, Chattogram", rating: 4.8, isLocal: true, verified: true, since: "2020", responseTime: "~8 min" },
+];
+
+export const categories = [
+  { id: "electronics", name: "Electronics", nameBn: "ইলেকট্রনিক্স", emoji: "📱" },
+  { id: "grocery", name: "Grocery", nameBn: "মুদি", emoji: "🥬" },
+  { id: "fashion", name: "Fashion", nameBn: "ফ্যাশন", emoji: "👕" },
+  { id: "home", name: "Home & Living", nameBn: "গৃহসজ্জা", emoji: "🛋️" },
+  { id: "beauty", name: "Beauty", nameBn: "প্রসাধনী", emoji: "💄" },
+  { id: "sports", name: "Sports", nameBn: "খেলাধুলা", emoji: "🏏" },
+];
+
+export const products: Product[] = [
+  {
+    id: "p1",
+    name: "Wireless Noise-Cancelling Headphones",
+    nameBn: "ওয়্যারলেস নয়েজ ক্যান্সেলিং হেডফোন",
+    brand: "SoundPeak",
+    category: "electronics",
+    image: "linear-gradient(135deg,#1f4d46,#0f2f36)",
+    emoji: "🎧",
+    price: 6450,
+    oldPrice: 8900,
+    rating: 4.6,
+    reviewCount: 1284,
+    description: "40h battery, hybrid ANC, dual-device pairing and a foldable travel case. Tuned for podcasts and commute noise.",
+    descriptionBn: "৪০ ঘণ্টা ব্যাটারি, হাইব্রিড এএনসি, দুই ডিভাইস পেয়ারিং এবং ভাঁজযোগ্য ট্রাভেল কেস।",
+    specs: { Battery: "40 hours", ANC: "Hybrid, 32dB", Bluetooth: "5.3", Weight: "248 g", Warranty: "1 year local" },
+    offers: [
+      { sellerId: "s1", price: 6450, delivery: "Same day in Dhanmondi", stock: 7 },
+      { sellerId: "s2", price: 6299, delivery: "2-3 days nationwide", stock: 45 },
+      { sellerId: "s3", price: 6690, delivery: "Next day in Uttara", stock: 3 },
+    ],
+    reviews: [
+      { id: "r1", user: "Nusrat J.", rating: 5, text: "ANC is excellent on the bus. Battery easily lasts a week of commuting.", date: "2 days ago" },
+      { id: "r2", user: "Rakib H.", rating: 4, text: "Great sound, but the ear cups get warm after 3 hours.", date: "1 week ago" },
+      { id: "r3", user: "user_88213", rating: 5, text: "Best product ever!!! Buy now!!! Amazing seller amazing price!!!", date: "1 week ago", suspicious: true, reason: "Generic praise, new account, 14 identical reviews posted in 6 minutes" },
+      { id: "r4", user: "Tanvir A.", rating: 3, text: "Mic quality on calls is average. Music is good though.", date: "3 weeks ago" },
+      { id: "r5", user: "shopper2024x", rating: 5, text: "Perfect perfect perfect. Five star. Recommended to everyone.", date: "3 weeks ago", suspicious: true, reason: "Duplicated text found across 6 unrelated products" },
+    ],
+    aiSummary: "Buyers consistently praise the noise cancellation and 40-hour battery for daily commuting. The most common complaint is warmth after long sessions, and several reviewers note call-mic quality is only average. Build quality and the travel case are considered good value at this price.",
+    tags: ["trending", "best-anc"],
+  },
+  {
+    id: "p2",
+    name: "Smart Fitness Band 6",
+    nameBn: "স্মার্ট ফিটনেস ব্যান্ড ৬",
+    brand: "PulseFit",
+    category: "electronics",
+    image: "linear-gradient(135deg,#2c3e70,#14203f)",
+    emoji: "⌚",
+    price: 2890,
+    oldPrice: 3500,
+    rating: 4.3,
+    reviewCount: 642,
+    description: "AMOLED display, SpO2 and heart rate tracking, 14-day battery, 5ATM water resistance.",
+    descriptionBn: "অ্যামোলেড ডিসপ্লে, SpO2 ও হার্ট রেট ট্র্যাকিং, ১৪ দিন ব্যাটারি।",
+    specs: { Display: "1.56\" AMOLED", Battery: "14 days", Water: "5ATM", Sensors: "HR, SpO2, Accel", Warranty: "6 months" },
+    offers: [
+      { sellerId: "s2", price: 2890, delivery: "2-3 days nationwide", stock: 120 },
+      { sellerId: "s3", price: 2950, delivery: "Next day in Uttara", stock: 12 },
+    ],
+    reviews: [
+      { id: "r1", user: "Farhana K.", rating: 4, text: "Step count is accurate, sleep tracking is a bit optimistic.", date: "4 days ago" },
+      { id: "r2", user: "Imran S.", rating: 5, text: "Battery really does last two weeks with notifications on.", date: "2 weeks ago" },
+      { id: "r3", user: "deal_hunter99", rating: 5, text: "Wow super item fast delivery best seller!!!", date: "2 weeks ago", suspicious: true, reason: "Review posted before order delivery timestamp" },
+    ],
+    aiSummary: "Reviewers highlight the genuinely long battery life and accurate step tracking. Sleep tracking accuracy is the recurring doubt, and a few users mention the strap material feels cheap after a few months.",
+    tags: ["budget"],
+  },
+  {
+    id: "p3",
+    name: "Premium Basmati Rice 5kg",
+    nameBn: "প্রিমিয়াম বাসমতি চাল ৫ কেজি",
+    brand: "Golden Field",
+    category: "grocery",
+    image: "linear-gradient(135deg,#6b5a2e,#3a2f16)",
+    emoji: "🍚",
+    price: 890,
+    rating: 4.8,
+    reviewCount: 310,
+    description: "Aged 12 months, extra long grain, ideal for biryani and polao.",
+    descriptionBn: "১২ মাস পুরনো, অতিরিক্ত লম্বা দানা, বিরিয়ানি ও পোলাওয়ের জন্য আদর্শ।",
+    specs: { Weight: "5 kg", Origin: "Dinajpur", Type: "Aged basmati", Packaging: "Sealed jute-lined" },
+    offers: [
+      { sellerId: "s4", price: 890, delivery: "Same day in Chattogram", stock: 60 },
+      { sellerId: "s1", price: 935, delivery: "Same day in Dhanmondi", stock: 22 },
+    ],
+    reviews: [
+      { id: "r1", user: "Shirin B.", rating: 5, text: "Grains stay separate in polao. Consistent quality across three orders.", date: "5 days ago" },
+      { id: "r2", user: "Kamrul I.", rating: 4, text: "Good rice, packaging arrived slightly torn.", date: "3 weeks ago" },
+    ],
+    aiSummary: "Nearly all reviewers describe consistent grain quality and good aroma, especially for biryani. The only repeated issue is packaging damage during delivery, not the product itself.",
+    tags: ["local-favourite"],
+  },
+  {
+    id: "p4",
+    name: "Handloom Cotton Panjabi",
+    nameBn: "হ্যান্ডলুম কটন পাঞ্জাবি",
+    brand: "Tantu",
+    category: "fashion",
+    image: "linear-gradient(135deg,#5c3a63,#2b1a32)",
+    emoji: "👘",
+    price: 1750,
+    oldPrice: 2200,
+    rating: 4.5,
+    reviewCount: 188,
+    description: "Handwoven cotton, breathable for summer, natural dye finish.",
+    descriptionBn: "হাতে বোনা সুতি, গ্রীষ্মের জন্য আরামদায়ক, প্রাকৃতিক রঙ।",
+    specs: { Fabric: "100% handloom cotton", Fit: "Regular", Care: "Hand wash cold", Sizes: "S-XXL" },
+    offers: [
+      { sellerId: "s1", price: 1750, delivery: "Same day in Dhanmondi", stock: 15 },
+      { sellerId: "s2", price: 1820, delivery: "2-3 days nationwide", stock: 40 },
+    ],
+    reviews: [
+      { id: "r1", user: "Sabbir R.", rating: 5, text: "Fabric is genuinely handloom, very comfortable in heat.", date: "1 week ago" },
+      { id: "r2", user: "Mahin C.", rating: 4, text: "Colour bled slightly on first wash, fine afterwards.", date: "1 month ago" },
+    ],
+    aiSummary: "Buyers value the authentic handloom feel and summer comfort. Slight colour bleeding on the first wash is mentioned repeatedly; sizing runs true to chart.",
+    tags: ["local-artisan"],
+  },
+  {
+    id: "p5",
+    name: "Ceramic Cookware Set (5 pcs)",
+    nameBn: "সিরামিক কুকওয়্যার সেট (৫ পিস)",
+    brand: "HomeCraft",
+    category: "home",
+    image: "linear-gradient(135deg,#7a4436,#39201a)",
+    emoji: "🍳",
+    price: 4200,
+    oldPrice: 5400,
+    rating: 4.2,
+    reviewCount: 96,
+    description: "Non-stick ceramic coating, induction compatible, PFOA free.",
+    descriptionBn: "নন-স্টিক সিরামিক কোটিং, ইন্ডাকশন উপযোগী, PFOA মুক্ত।",
+    specs: { Pieces: "5", Coating: "Ceramic non-stick", Compatible: "Gas + induction", Warranty: "1 year" },
+    offers: [
+      { sellerId: "s4", price: 4200, delivery: "Same day in Chattogram", stock: 9 },
+      { sellerId: "s2", price: 4390, delivery: "2-3 days nationwide", stock: 30 },
+    ],
+    reviews: [
+      { id: "r1", user: "Ruma A.", rating: 4, text: "Heats evenly, handles stay cool. Slightly heavy.", date: "2 weeks ago" },
+      { id: "r2", user: "Jubayer M.", rating: 3, text: "Coating scratched within two months of daily use.", date: "1 month ago" },
+    ],
+    aiSummary: "Even heating and cool-touch handles are the strengths. Durability of the ceramic coating under daily heavy use is the main risk raised by reviewers.",
+    tags: [],
+  },
+  {
+    id: "p6",
+    name: "Vitamin C Brightening Serum",
+    nameBn: "ভিটামিন সি ব্রাইটেনিং সিরাম",
+    brand: "GlowLab",
+    category: "beauty",
+    image: "linear-gradient(135deg,#8a6d1f,#3f3110)",
+    emoji: "🧴",
+    price: 1290,
+    rating: 4.4,
+    reviewCount: 452,
+    description: "15% L-ascorbic acid with hyaluronic acid, dermatologically tested.",
+    descriptionBn: "১৫% এল-অ্যাসকরবিক অ্যাসিড ও হায়ালুরোনিক অ্যাসিড সমৃদ্ধ।",
+    specs: { Volume: "30 ml", Actives: "15% Vit C, HA", Skin: "All types", Expiry: "18 months" },
+    offers: [
+      { sellerId: "s2", price: 1290, delivery: "2-3 days nationwide", stock: 200 },
+      { sellerId: "s3", price: 1350, delivery: "Next day in Uttara", stock: 25 },
+    ],
+    reviews: [
+      { id: "r1", user: "Anika T.", rating: 5, text: "Visible difference in dark spots after 6 weeks.", date: "6 days ago" },
+      { id: "r2", user: "beauty_deals_bd", rating: 5, text: "Best serum best price order fast!!!", date: "1 week ago", suspicious: true, reason: "Promotional account posting only 5-star reviews" },
+    ],
+    aiSummary: "Most users report gradual improvement in dark spots over 4-8 weeks. Sensitive-skin users mention mild tingling initially. Packaging (dropper) quality gets occasional complaints.",
+    tags: ["trending"],
+  },
+  {
+    id: "p7",
+    name: "Tape Ball Cricket Bat",
+    nameBn: "টেপ বল ক্রিকেট ব্যাট",
+    brand: "Rangpur Sports",
+    category: "sports",
+    image: "linear-gradient(135deg,#3d5a2c,#1c2b14)",
+    emoji: "🏏",
+    price: 1450,
+    oldPrice: 1800,
+    rating: 4.6,
+    reviewCount: 210,
+    description: "Seasoned mango wood, taped grip, built for street tape-ball cricket.",
+    descriptionBn: "সিজনড আমকাঠ, টেপ গ্রিপ, টেপ বল ক্রিকেটের জন্য তৈরি।",
+    specs: { Wood: "Mango", Weight: "1.1 kg", Grip: "Rubber", Use: "Tape ball" },
+    offers: [
+      { sellerId: "s3", price: 1450, delivery: "Next day in Uttara", stock: 18 },
+      { sellerId: "s1", price: 1499, delivery: "Same day in Dhanmondi", stock: 6 },
+    ],
+    reviews: [
+      { id: "r1", user: "Sajid K.", rating: 5, text: "Great pickup for street cricket, sweet spot is wide.", date: "3 days ago" },
+    ],
+    aiSummary: "Reviewers agree it is well-balanced for tape-ball play with a wide sweet spot. Not suitable for hard-ball cricket, which a few buyers learned the hard way.",
+    tags: ["local-artisan"],
+  },
+  {
+    id: "p8",
+    name: "Portable Blender 400ml",
+    nameBn: "পোর্টেবল ব্লেন্ডার ৪০০ মিলি",
+    brand: "MixGo",
+    category: "home",
+    image: "linear-gradient(135deg,#2f5f6b,#13303a)",
+    emoji: "🥤",
+    price: 1690,
+    rating: 4.1,
+    reviewCount: 134,
+    description: "USB-C rechargeable, 6 stainless blades, doubles as a travel bottle.",
+    descriptionBn: "ইউএসবি-সি রিচার্জেবল, ৬ স্টেইনলেস ব্লেড, ট্রাভেল বোতল হিসেবেও ব্যবহারযোগ্য।",
+    specs: { Capacity: "400 ml", Battery: "2000 mAh", Blades: "6 stainless", Charge: "USB-C" },
+    offers: [
+      { sellerId: "s2", price: 1690, delivery: "2-3 days nationwide", stock: 80 },
+      { sellerId: "s4", price: 1740, delivery: "Same day in Chattogram", stock: 11 },
+    ],
+    reviews: [
+      { id: "r1", user: "Priya D.", rating: 4, text: "Handles soft fruit well, struggles with ice.", date: "1 week ago" },
+    ],
+    aiSummary: "Good for smoothies with soft fruit and protein shakes; consistently fails with ice or hard nuts. Battery lasts roughly 12 blends per charge.",
+    tags: ["budget"],
+  },
+];
+
+export const getProduct = (id: string) => products.find((p) => p.id === id);
+export const getSeller = (id: string) => sellers.find((s) => s.id === id)!;
+
+export const coupons = [
+  { code: "LOCAL100", label: "৳100 off on local seller orders", cost: 500, expires: "31 Aug" },
+  { code: "FRESH15", label: "15% off grocery, max ৳200", cost: 800, expires: "20 Aug" },
+  { code: "FREESHIP", label: "Free delivery on any order", cost: 300, expires: "15 Sep" },
+];
+
+export const notificationsSeed = [
+  { id: "n1", type: "order", title: "Order #HL-2291 is out for delivery", titleBn: "অর্ডার #HL-2291 ডেলিভারির পথে", time: "12 min ago" },
+  { id: "n2", type: "price", title: "Price drop: Headphones now ৳6,299", titleBn: "দাম কমেছে: হেডফোন এখন ৳৬,২৯৯", time: "1 hr ago" },
+  { id: "n3", type: "promo", title: "Flash sale in Dhanmondi ends in 2 hours", titleBn: "ধানমন্ডিতে ফ্ল্যাশ সেল ২ ঘণ্টায় শেষ", time: "3 hr ago" },
+  { id: "n4", type: "reward", title: "You earned 120 coins from your last order", titleBn: "শেষ অর্ডারে ১২০ কয়েন পেয়েছেন", time: "Yesterday" },
+];
+
+export const orderSeed = [
+  {
+    id: "HL-2291",
+    date: "29 Jul 2026",
+    items: [{ productId: "p1", qty: 1 }],
+    total: 6450,
+    payment: "bKash",
+    status: 2,
+    seller: "s1",
+  },
+  {
+    id: "HL-2264",
+    date: "22 Jul 2026",
+    items: [{ productId: "p3", qty: 2 }, { productId: "p8", qty: 1 }],
+    total: 3520,
+    payment: "Cash on Delivery",
+    status: 3,
+    seller: "s4",
+  },
+];
+
+export const trackingSteps = [
+  { key: "confirmed", en: "Order confirmed", bn: "অর্ডার নিশ্চিত" },
+  { key: "packed", en: "Packed by seller", bn: "বিক্রেতা প্যাক করেছেন" },
+  { key: "transit", en: "Out for delivery", bn: "ডেলিভারির পথে" },
+  { key: "delivered", en: "Delivered", bn: "ডেলিভারি সম্পন্ন" },
+];

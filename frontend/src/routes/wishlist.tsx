@@ -1,0 +1,48 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Layout } from "@/components/Layout";
+import { ProductCard } from "@/components/ProductCard";
+import { getProduct } from "@/lib/mock-data";
+import { useLang } from "@/lib/i18n";
+import { useStore } from "@/lib/store";
+import { Heart } from "lucide-react";
+
+export const Route = createFileRoute("/wishlist")({
+  head: () => ({
+    meta: [
+      { title: "Wishlist — HyperLocal" },
+      { name: "description", content: "Save products for later, watch price drops and move items to your cart." },
+      { property: "og:title", content: "Wishlist — HyperLocal" },
+      { property: "og:description", content: "Your saved products with price-drop alerts." },
+    ],
+  }),
+  component: WishlistPage,
+});
+
+function WishlistPage() {
+  const { t } = useLang();
+  const { wishlist } = useStore();
+  const items = wishlist.map((id) => getProduct(id)!).filter(Boolean);
+
+  return (
+    <Layout>
+      <h1 className="font-display text-2xl font-bold">{t("wishlist")}</h1>
+      <p className="text-sm text-muted-foreground">Price-drop alerts are on for every saved item.</p>
+
+      {items.length === 0 ? (
+        <div className="card-surface mt-6 flex flex-col items-center gap-3 p-12 text-center">
+          <Heart className="size-10 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">{t("emptyWishlist")}</p>
+          <Link to="/search" search={{ q: "", category: undefined }} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            Browse products
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((p) => (
+            <ProductCard key={p.id} product={p} reason={p.oldPrice ? "Price dropped since you saved it" : undefined} />
+          ))}
+        </div>
+      )}
+    </Layout>
+  );
+}
