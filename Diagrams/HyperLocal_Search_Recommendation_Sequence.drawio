@@ -1,0 +1,372 @@
+<mxfile host="app.diagrams.net" agent="lovable">
+  <diagram id="d1" name="Sequence - Search &amp; AI Recommendation">
+    <mxGraphModel dx="4564" dy="2451" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="g0" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#9e9e9e;opacity=40;verticalAlign=top;align=left;spacingLeft=8;fontStyle=1;" value="A. Text product search" vertex="1">
+          <mxGeometry height="502" width="1660" x="20" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9e9e9e;opacity=40;verticalAlign=top;align=left;spacingLeft=8;fontStyle=1;" value="B. Voice search" vertex="1">
+          <mxGeometry height="496" width="1660" x="20" y="592" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#9e9e9e;opacity=40;verticalAlign=top;align=left;spacingLeft=8;fontStyle=1;" value="C. Visual search" vertex="1">
+          <mxGeometry height="436" width="1660" x="20" y="1078" as="geometry" />
+        </mxCell>
+        <mxCell id="g3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#9e9e9e;opacity=40;verticalAlign=top;align=left;spacingLeft=8;fontStyle=1;" value="D. AI personalised recommendations" vertex="1">
+          <mxGeometry height="772" width="1660" x="20" y="1504" as="geometry" />
+        </mxCell>
+        <mxCell id="g4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;opacity=40;verticalAlign=top;align=left;spacingLeft=8;fontStyle=1;" value="E. Fallback - backend unavailable" vertex="1">
+          <mxGeometry height="184" width="1660" x="20" y="2266" as="geometry" />
+        </mxCell>
+        <mxCell id="l_Buyer" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;participant=umlActor;" value="Buyer" vertex="1">
+          <mxGeometry height="2450" width="150" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_SearchBar (React)" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="SearchBar (React)" vertex="1">
+          <mxGeometry height="2450" width="150" x="220" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_Search Page" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="Search Page" vertex="1">
+          <mxGeometry height="2450" width="150" x="400" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_ApiClient (api.ts)" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="ApiClient (api.ts)" vertex="1">
+          <mxGeometry height="2450" width="150" x="580" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_auth middleware" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="auth middleware" vertex="1">
+          <mxGeometry height="2450" width="150" x="760" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_product.routes.js" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="product.routes.js" vertex="1">
+          <mxGeometry height="2450" width="150" x="940" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_ai.routes.js" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="ai.routes.js" vertex="1">
+          <mxGeometry height="2450" width="150" x="1120" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_RecommendationService" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="RecommendationService" vertex="1">
+          <mxGeometry height="2450" width="150" x="1300" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l_MongoDB (Mongoose)" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;" value="MongoDB (Mongoose)" vertex="1">
+          <mxGeometry height="2450" width="150" x="1480" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="1: types query + filters">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="150" as="sourcePoint" />
+            <mxPoint x="295" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="2: navigate /search?q=...">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="295" y="192" as="sourcePoint" />
+            <mxPoint x="475" y="192" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="3: products.list(params)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="475" y="234" as="sourcePoint" />
+            <mxPoint x="655" y="234" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="4: GET /api/products?q&amp;filters">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="276" as="sourcePoint" />
+            <mxPoint x="1015" y="276" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="5: optionalAuth(req)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="318" as="sourcePoint" />
+            <mxPoint x="835" y="318" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="6: req.user | anonymous">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="835" y="360" as="sourcePoint" />
+            <mxPoint x="1015" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="7: find({$text:q, filters}).sort().limit()">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="402" as="sourcePoint" />
+            <mxPoint x="1555" y="402" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="8: products + total">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="444" as="sourcePoint" />
+            <mxPoint x="1015" y="444" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="9: 200 {items, page, total}">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="486" as="sourcePoint" />
+            <mxPoint x="655" y="486" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="10: results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="528" as="sourcePoint" />
+            <mxPoint x="475" y="528" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m11" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="11: product grid + seller price comparison">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="475" y="570" as="sourcePoint" />
+            <mxPoint x="115" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="12: press mic and speak">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="642" as="sourcePoint" />
+            <mxPoint x="295" y="642" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;align=left;verticalAlign=bottom;" value="13: Web Speech API -&gt; transcript">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="684" />
+              <mxPoint x="365" y="724" />
+            </Array>
+            <mxPoint x="295" y="684" as="sourcePoint" />
+            <mxPoint x="295" y="724" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m14" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="14: ai.voiceSearch(transcript)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="295" y="744" as="sourcePoint" />
+            <mxPoint x="655" y="744" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m15" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="15: POST /api/ai/voice-search">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="786" as="sourcePoint" />
+            <mxPoint x="1195" y="786" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m16" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;align=left;verticalAlign=bottom;" value="16: normalise + extract keywords">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1265" y="828" />
+              <mxPoint x="1265" y="868" />
+            </Array>
+            <mxPoint x="1195" y="828" as="sourcePoint" />
+            <mxPoint x="1195" y="868" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="17: text search on keywords">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1195" y="888" as="sourcePoint" />
+            <mxPoint x="1555" y="888" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m18" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="18: matching products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="930" as="sourcePoint" />
+            <mxPoint x="1195" y="930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m19" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="19: 200 {items}">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1195" y="972" as="sourcePoint" />
+            <mxPoint x="655" y="972" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m20" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="20: results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="1014" as="sourcePoint" />
+            <mxPoint x="295" y="1014" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m21" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="21: matched products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="295" y="1056" as="sourcePoint" />
+            <mxPoint x="115" y="1056" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m22" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="22: upload / capture product photo">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="1128" as="sourcePoint" />
+            <mxPoint x="295" y="1128" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m23" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;align=left;verticalAlign=bottom;" value="23: derive image labels">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="1170" />
+              <mxPoint x="365" y="1210" />
+            </Array>
+            <mxPoint x="295" y="1170" as="sourcePoint" />
+            <mxPoint x="295" y="1210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m24" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="24: ai.visualSearch(labels)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="295" y="1230" as="sourcePoint" />
+            <mxPoint x="655" y="1230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m25" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="25: POST /api/ai/visual-search">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="1272" as="sourcePoint" />
+            <mxPoint x="1195" y="1272" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m26" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="26: find by tags / category">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1195" y="1314" as="sourcePoint" />
+            <mxPoint x="1555" y="1314" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m27" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="27: candidate products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="1356" as="sourcePoint" />
+            <mxPoint x="1195" y="1356" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m28" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="28: 200 {items} ranked by label overlap">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1195" y="1398" as="sourcePoint" />
+            <mxPoint x="655" y="1398" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m29" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="29: results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="1440" as="sourcePoint" />
+            <mxPoint x="295" y="1440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m30" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="30: visually similar products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="295" y="1482" as="sourcePoint" />
+            <mxPoint x="115" y="1482" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m31" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="31: open Home / finish a search">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="1554" as="sourcePoint" />
+            <mxPoint x="475" y="1554" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m32" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="32: products.recommendations()">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="475" y="1596" as="sourcePoint" />
+            <mxPoint x="655" y="1596" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m33" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="33: GET /api/products/recommendations (Bearer)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="1638" as="sourcePoint" />
+            <mxPoint x="1015" y="1638" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m34" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="34: optionalAuth(req)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="1680" as="sourcePoint" />
+            <mxPoint x="835" y="1680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m35" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="35: User.findById(payload.sub)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="835" y="1722" as="sourcePoint" />
+            <mxPoint x="1555" y="1722" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m36" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="36: user (wishlist, orders, coins)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="1764" as="sourcePoint" />
+            <mxPoint x="835" y="1764" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m37" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="37: req.user">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="835" y="1806" as="sourcePoint" />
+            <mxPoint x="1015" y="1806" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m38" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="38: forUser(user)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="1848" as="sourcePoint" />
+            <mxPoint x="1375" y="1848" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m39" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="39: load orders, wishlist, categories">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1375" y="1890" as="sourcePoint" />
+            <mxPoint x="1555" y="1890" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m40" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="40: signals">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="1932" as="sourcePoint" />
+            <mxPoint x="1375" y="1932" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m41" edge="1" parent="1" style="html=1;rounded=0;endArrow=block;endFill=1;align=center;verticalAlign=bottom;" value="41: find similar (category, brand, tags, rating)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1375" y="1974" as="sourcePoint" />
+            <mxPoint x="1555" y="1974" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m42" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="42: candidates">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1555" y="2016" as="sourcePoint" />
+            <mxPoint x="1375" y="2016" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m43" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;align=left;verticalAlign=bottom;" value="43: score = affinity + rating + local boost">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1445" y="2058" />
+              <mxPoint x="1445" y="2098" />
+            </Array>
+            <mxPoint x="1375" y="2058" as="sourcePoint" />
+            <mxPoint x="1375" y="2098" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m44" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="44: ranked products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1375" y="2118" as="sourcePoint" />
+            <mxPoint x="1015" y="2118" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m45" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="45: 200 {items}">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1015" y="2160" as="sourcePoint" />
+            <mxPoint x="655" y="2160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m46" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="46: recommendations">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="2202" as="sourcePoint" />
+            <mxPoint x="475" y="2202" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m47" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="47: &#39;Recommended for you&#39; carousel">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="475" y="2244" as="sourcePoint" />
+            <mxPoint x="115" y="2244" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m48" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="48: network error">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="2316" as="sourcePoint" />
+            <mxPoint x="475" y="2316" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m49" edge="1" parent="1" style="html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;align=left;verticalAlign=bottom;" value="49: fall back to bundled mock-data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="545" y="2358" />
+              <mxPoint x="545" y="2398" />
+            </Array>
+            <mxPoint x="475" y="2358" as="sourcePoint" />
+            <mxPoint x="475" y="2398" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m50" edge="1" parent="1" style="html=1;rounded=0;dashed=1;endArrow=block;endFill=0;align=center;verticalAlign=bottom;" value="50: demo results (offline mode)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="475" y="2418" as="sourcePoint" />
+            <mxPoint x="115" y="2418" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
