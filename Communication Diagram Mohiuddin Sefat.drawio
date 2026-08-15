@@ -1,0 +1,132 @@
+<mxfile host="app.diagrams.net" agent="ChatGPT">
+  <diagram id="comm-page" name="Communication Diagram - 3 Major Use Cases">
+    <mxGraphModel dx="1654" dy="2068" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ctitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=20;" value="Communication Diagram — 3 Most Important Use Search and Compare, Order and Payment, Track Order&lt;div&gt;&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="1160" x="330" y="-200" as="geometry" />
+        </mxCell>
+        <mxCell id="customer" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Customer" vertex="1">
+          <mxGeometry height="65" width="180" x="80" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Web / Mobile UI" vertex="1">
+          <mxGeometry height="65" width="200" x="420" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="search" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Search Service" vertex="1">
+          <mxGeometry height="65" width="190" x="610" y="-30" as="geometry" />
+        </mxCell>
+        <mxCell id="catalog" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Product Catalog" vertex="1">
+          <mxGeometry height="65" width="210" x="1050" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ai" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="AI / Review Service" vertex="1">
+          <mxGeometry height="65" width="210" x="1290" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="cart" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Cart / Checkout" vertex="1">
+          <mxGeometry height="65" width="200" x="300" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="order" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Order Service" vertex="1">
+          <mxGeometry height="65" width="190" x="720" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="payment" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Payment Gateway" vertex="1">
+          <mxGeometry height="65" width="210" x="1170" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="seller" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Seller" vertex="1">
+          <mxGeometry height="65" width="170" x="1350" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="notify" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Notification Service" vertex="1">
+          <mxGeometry height="65" width="220" x="560" y="805" as="geometry" />
+        </mxCell>
+        <mxCell id="delivery" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontSize=12;fillColor=#ffffff;" value="Delivery / Rider Service" vertex="1">
+          <mxGeometry height="65" width="240" x="980" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="sec1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.2;fontStyle=1;fontSize=13;fillColor=#f5f5f5;" value="1. Search &amp;amp; Compare Products" vertex="1">
+          <mxGeometry height="42" width="1300" x="270" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="sec2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.2;fontStyle=1;fontSize=13;fillColor=#f5f5f5;" value="2. Place Order &amp;amp; Make Payment" vertex="1">
+          <mxGeometry height="42" width="1290" x="280" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="sec3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.2;fontStyle=1;fontSize=13;fillColor=#f5f5f5;" value="3. Track Order" vertex="1">
+          <mxGeometry height="42" width="1320" x="250" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" source="customer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ui" value="1.1 searchProduct(query)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" source="ui" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="search" value="1.2 submitSearch(query, filters)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" source="search" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="catalog" value="1.3 getMatchingProducts()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" source="catalog" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ai" value="1.4 analyzeReviews(productId)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" source="ai" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ui" value="1.5 reviewSummary + suspicious-review flags">
+          <mxGeometry relative="1" x="-0.2869" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" source="catalog" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ui" value="1.6 products + seller offers">
+          <mxGeometry relative="1" x="-0.4894" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" source="ui" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="customer" value="1.7 displayComparison()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" source="customer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="cart" value="2.1 proceedToCheckout()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" source="cart" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="order" value="2.2 createPendingOrder()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="payment" value="2.3 processPayment()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m11" edge="1" parent="1" source="payment" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="order" value="2.4 paymentSuccess() / COD accepted">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m12" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="seller" value="2.5 notifySeller(newOrder)">
+          <mxGeometry relative="1" x="0.56" as="geometry">
+            <mxPoint x="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="cart" value="2.6 orderId + confirmed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m14" edge="1" parent="1" source="cart" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="customer" value="2.7 showOrderConfirmation()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m15" edge="1" parent="1" source="customer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ui" value="3.1 trackOrder(orderId)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m16" edge="1" parent="1" source="ui" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="order" value="3.2 requestOrderStatus()">
+          <mxGeometry relative="1" x="0.8552" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="delivery" value="3.3 getLiveDeliveryStatus()">
+          <mxGeometry relative="1" x="0.2239" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m18" edge="1" parent="1" source="delivery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="order" value="3.4 riderLocation + ETA">
+          <mxGeometry relative="1" x="0.109" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m19" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="ui" value="3.5 statusTimeline + liveUpdate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m20" edge="1" parent="1" source="delivery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="notify" value="3.6 publishDeliveryUpdate()">
+          <mxGeometry relative="1" x="-0.3193" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m21" edge="1" parent="1" source="notify" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.2;fontSize=11;" target="customer" value="3.7 sendPushNotification()">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
