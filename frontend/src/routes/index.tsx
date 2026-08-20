@@ -40,7 +40,7 @@ function Index() {
         </h1>
         <p className="mt-3 max-w-xl text-sm opacity-90 md:text-base">{t("tagline")}</p>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Link to="/search" className="rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-bold text-accent-foreground">
+          <Link to="/search" search={{ q: "", category: undefined }} className="rounded-xl bg-accent-gradient px-5 py-2.5 text-sm font-bold text-accent-foreground">
             {lang === "bn" ? "কেনাকাটা শুরু করুন" : "Start shopping"}
           </Link>
           <Link to="/seller" className="rounded-xl border border-primary-foreground/40 px-5 py-2.5 text-sm font-semibold">

@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Heart, ShoppingCart, User, Coins, Store, Home, Package, Languages } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
 import { SearchBar } from "./SearchBar";
 import { AssistantWidget } from "./AssistantWidget";
 
@@ -18,6 +19,7 @@ const navItems = [
 export function Layout({ children }: { children: ReactNode }) {
   const { lang, setLang, t } = useLang();
   const { cart, wishlist, notifications, coins } = useStore();
+  const { user, logout } = useAuth();
   const [bellOpen, setBellOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -93,6 +95,20 @@ export function Layout({ children }: { children: ReactNode }) {
             >
               <Coins className="size-4" /> {coins}
             </Link>
+
+            {user ? (
+              <button
+                onClick={() => void logout()}
+                className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold hover:bg-secondary"
+                title={user.email}
+              >
+                {user.name.split(" ")[0]} · Sign out
+              </button>
+            ) : (
+              <Link to="/login" search={{ redirect: undefined }} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold hover:bg-secondary">
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
 

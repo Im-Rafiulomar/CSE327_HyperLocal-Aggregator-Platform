@@ -1,19 +1,25 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Camera, Mic, Search, X, Upload, Loader2 } from "lucide-react";
+import { Camera, Mic, Search, X, Upload, Loader2, Sparkles, Square } from "lucide-react";
 import { useLang } from "@/lib/i18n";
-import { products } from "@/lib/mock-data";
+import { api } from "@/lib/api";
+import type { ApiProduct } from "@/lib/api/types";
+import { VoiceRecorder } from "@/lib/media/VoiceRecorder";
+import { CameraCapture, ImageEncoder } from "@/lib/media/CameraCapture";
 
 export function SearchBar() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [modal, setModal] = useState<null | "voice" | "visual">(null);
 
-  const go = (term: string) => {
-    setModal(null);
-    navigate({ to: "/search", search: { q: term, category: undefined } });
-  };
+  const go = useCallback(
+    (term: string) => {
+      setModal(null);
+      navigate({ to: "/search", search: { q: term, category: undefined } });
+    },
+    [navigate],
+  );
 
   return (
     <>
@@ -50,22 +56,24 @@ export function SearchBar() {
           <Camera className="size-4" />
         </button>
         <button type="submit" className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-          {t("home") && "Go"}
+          Go
         </button>
       </form>
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setModal(null)}>
-          <div className="w-full max-w-md card-surface p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="card-surface w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-display text-lg font-semibold">
-                {modal === "voice" ? t("voiceSearch") : t("visualSearch")}
-              </h3>
+              <h3 className="font-display text-lg font-semibold">{modal === "voice" ? t("voiceSearch") : t("visualSearch")}</h3>
               <button onClick={() => setModal(null)} aria-label="Close" className="rounded-md p-1 hover:bg-secondary">
                 <X className="size-4" />
               </button>
             </div>
-            {modal === "voice" ? <VoicePanel onResult={go} /> : <VisualPanel onResult={go} />}
+            {modal === "voice" ? (
+              <VoicePanel onResult={go} language={lang === "bn" ? "bn-BD" : "en-US"} />
+            ) : (
+              <VisualPanel onResult={go} />
+            )}
           </div>
         </div>
       )}
@@ -73,125 +81,240 @@ export function SearchBar() {
   );
 }
 
-function VoicePanel({ onResult }: { onResult: (q: string) => void }) {
-  const [state, setState] = useState<"idle" | "listening" | "done">("idle");
-  const [heard, setHeard] = useState("");
-  const phrases = ["wireless headphones under 7000 taka", "বাসমতি চাল ৫ কেজি", "vitamin c serum"];
-
-  const listen = () => {
-    setState("listening");
-    const phrase = phrases[Math.floor(Math.random() * phrases.length)]!;
-    let i = 0;
-    const int = window.setInterval(() => {
-      i += 2;
-      setHeard(phrase.slice(0, i));
-      if (i >= phrase.length) {
-        window.clearInterval(int);
-        setState("done");
-      }
-    }, 60);
-  };
-
+function ResultList({ items, onPick }: { items: ApiProduct[]; onPick: (name: string) => void }) {
+  if (!items.length) return null;
   return (
-    <div className="flex flex-col items-center gap-4 py-4 text-center">
-      <button
-        onClick={listen}
-        className={
-          "flex size-20 items-center justify-center rounded-full bg-hero-gradient text-primary-foreground shadow-lift " +
-          (state === "listening" ? "animate-pulse" : "")
-        }
-      >
-        <Mic className="size-8" />
-      </button>
-      <p className="text-sm text-muted-foreground">
-        {state === "idle" && "Tap the mic and speak in Bangla or English"}
-        {state === "listening" && "Listening…"}
-        {state === "done" && "Heard:"}
-      </p>
-      {heard && <p className="text-base font-medium">“{heard}”</p>}
-      {state === "done" && (
-        <button onClick={() => onResult(heard)} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-          Search this
+    <div className="space-y-2">
+      <p className="text-sm font-medium">{items.length} matching products</p>
+      {items.slice(0, 4).map((p) => (
+        <button
+          key={p._id ?? p.slug}
+          onClick={() => onPick(p.name)}
+          className="flex w-full items-center gap-3 rounded-lg border border-border p-2 text-left hover:bg-secondary"
+        >
+          <span className="flex size-10 items-center justify-center rounded-md bg-secondary text-xl">{p.emoji ?? "📦"}</span>
+          <span className="flex-1 text-sm">{p.name}</span>
+          <span className="text-xs font-semibold text-primary">৳{p.price}</span>
         </button>
-      )}
-      <p className="text-[11px] text-muted-foreground">Prototype: speech recognition is simulated.</p>
+      ))}
     </div>
   );
 }
 
+/** Real microphone capture: Web Speech API when available, AI transcription otherwise. */
+function VoicePanel({ onResult, language }: { onResult: (q: string) => void; language: string }) {
+  const recorderRef = useRef<VoiceRecorder | null>(null);
+  const [state, setState] = useState<"idle" | "listening" | "working" | "done">("idle");
+  const [heard, setHeard] = useState("");
+  const [items, setItems] = useState<ApiProduct[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!recorderRef.current) recorderRef.current = new VoiceRecorder();
+  const recorder = recorderRef.current;
+
+  useEffect(() => () => recorder.cancel(), [recorder]);
+
+  async function start() {
+    setError(null);
+    setHeard("");
+    setItems([]);
+    try {
+      await recorder.start(language, setHeard);
+      setState("listening");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Microphone unavailable");
+    }
+  }
+
+  async function stop() {
+    setState("working");
+    try {
+      const capture = await recorder.stop();
+      const res = await api.ai.voiceSearch({
+        ...(capture.transcript ? { transcript: capture.transcript } : {}),
+        ...(capture.audio ? { audio: capture.audio, mimeType: capture.mimeType } : {}),
+        language: capture.language,
+      });
+      setHeard(res.transcript || capture.transcript || "");
+      setItems(res.items ?? []);
+      setState("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Voice search failed");
+      setState(heard ? "done" : "idle");
+    }
+  }
+
+  if (!recorder.supported) {
+    return <p className="py-6 text-center text-sm text-muted-foreground">This browser does not support microphone capture.</p>;
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-4 py-2 text-center">
+      <button
+        onClick={state === "listening" ? stop : start}
+        disabled={state === "working"}
+        className={
+          "flex size-20 items-center justify-center rounded-full bg-hero-gradient text-primary-foreground shadow-lift disabled:opacity-60 " +
+          (state === "listening" ? "animate-pulse" : "")
+        }
+        aria-label={state === "listening" ? "Stop recording" : "Start recording"}
+      >
+        {state === "working" ? <Loader2 className="size-8 animate-spin" /> : state === "listening" ? <Square className="size-7" /> : <Mic className="size-8" />}
+      </button>
+      <p className="text-sm text-muted-foreground">
+        {state === "idle" && "Tap the mic and speak in Bangla or English"}
+        {state === "listening" && "Listening… tap again to search"}
+        {state === "working" && "Transcribing with AI…"}
+        {state === "done" && "Heard:"}
+      </p>
+      {heard && <p className="text-base font-medium">“{heard}”</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <ResultList items={items} onPick={onResult} />
+      {state === "done" && heard && (
+        <button
+          onClick={() => onResult(heard)}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+        >
+          Search “{heard.slice(0, 28)}”
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Real camera / photo capture sent to the backend vision model. */
 function VisualPanel({ onResult }: { onResult: (q: string) => void }) {
-  const [state, setState] = useState<"idle" | "analysing" | "done">("idle");
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const cameraRef = useRef<CameraCapture | null>(null);
+  const encoderRef = useRef(new ImageEncoder());
+  const [mode, setMode] = useState<"idle" | "camera" | "analysing" | "done">("idle");
   const [preview, setPreview] = useState<string | null>(null);
+  const [labels, setLabels] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [items, setItems] = useState<ApiProduct[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const run = (dataUrl: string | null) => {
+  if (!cameraRef.current) cameraRef.current = new CameraCapture(encoderRef.current);
+  const camera = cameraRef.current;
+
+  useEffect(() => () => camera.stop(), [camera]);
+
+  async function openCamera() {
+    setError(null);
+    setMode("camera");
+    try {
+      // wait a tick so the <video> element is mounted
+      await new Promise((r) => requestAnimationFrame(r));
+      if (videoRef.current) await camera.start(videoRef.current);
+    } catch {
+      setError("Camera permission denied — upload a photo instead.");
+      setMode("idle");
+    }
+  }
+
+  async function analyse(dataUrl: string) {
     setPreview(dataUrl);
-    setState("analysing");
-    window.setTimeout(() => setState("done"), 1400);
-  };
+    setMode("analysing");
+    setError(null);
+    try {
+      const res = await api.ai.imageSearch({ image: dataUrl, limit: 8 });
+      setLabels(res.labels ?? []);
+      setDescription(res.description ?? "");
+      setItems(res.items ?? []);
+      if (res.warning) setError(res.warning);
+      setMode("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Image search failed");
+      setMode("done");
+    }
+  }
 
-  const matches = products.slice(0, 3);
+  async function shoot() {
+    if (!videoRef.current) return;
+    const shot = await camera.capture(videoRef.current);
+    camera.stop();
+    void analyse(shot);
+  }
 
   return (
     <div className="space-y-4">
-      {state === "idle" && (
+      {mode === "idle" && (
         <>
           <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-border bg-secondary/50 px-4 py-8 text-center hover:bg-secondary">
             <Upload className="size-6 text-primary" />
             <span className="text-sm font-medium">Upload a product photo</span>
-            <span className="text-xs text-muted-foreground">JPG or PNG, up to 5 MB</span>
+            <span className="text-xs text-muted-foreground">JPG, PNG or WebP</span>
             <input
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const f = e.target.files?.[0];
-                run(f ? URL.createObjectURL(f) : null);
+                if (f) void analyse(await encoderRef.current.fromFile(f));
               }}
             />
           </label>
-          <button
-            onClick={() => run(null)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-medium hover:bg-secondary"
-          >
-            <Camera className="size-4" /> Use camera (demo)
-          </button>
+          {CameraCapture.supported && (
+            <button
+              onClick={openCamera}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-medium hover:bg-secondary"
+            >
+              <Camera className="size-4" /> Use camera
+            </button>
+          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </>
       )}
 
-      {state !== "idle" && (
+      {mode === "camera" && (
+        <div className="space-y-3">
+          <video ref={videoRef} playsInline muted className="h-56 w-full rounded-xl bg-secondary object-cover" />
+          <button
+            onClick={shoot}
+            className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
+          >
+            Capture &amp; identify
+          </button>
+        </div>
+      )}
+
+      {(mode === "analysing" || mode === "done") && (
         <div className="space-y-3">
           <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-secondary">
-            {preview ? (
-              <img src={preview} alt="Uploaded item" className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-4xl">📷</span>
-            )}
+            {preview ? <img src={preview} alt="Captured item" className="h-full w-full object-cover" /> : <span className="text-4xl">📷</span>}
           </div>
-          {state === "analysing" ? (
+
+          {mode === "analysing" ? (
             <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Matching against 18,400 local listings…
+              <Loader2 className="size-4 animate-spin" /> AI is identifying the product…
             </div>
           ) : (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">3 visually similar items found</p>
-              {matches.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => onResult(p.name)}
-                  className="flex w-full items-center gap-3 rounded-lg border border-border p-2 text-left hover:bg-secondary"
-                >
-                  <span className="flex size-10 items-center justify-center rounded-md text-xl" style={{ backgroundImage: p.image }}>
-                    {p.emoji}
-                  </span>
-                  <span className="flex-1 text-sm">{p.name}</span>
-                  <span className="text-xs text-muted-foreground">{90 - matches.indexOf(p) * 12}% match</span>
-                </button>
-              ))}
+            <div className="space-y-3">
+              {description && (
+                <p className="flex gap-2 rounded-lg bg-secondary/60 p-2 text-xs text-muted-foreground">
+                  <Sparkles className="size-3.5 shrink-0 text-primary" /> {description}
+                </p>
+              )}
+              {labels.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {labels.map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => onResult(l)}
+                      className="rounded-full border border-border px-2.5 py-1 text-[11px] font-medium hover:bg-secondary"
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <ResultList items={items} onPick={onResult} />
+              {error && <p className="text-xs text-destructive">{error}</p>}
+              {!items.length && !error && <p className="text-sm text-muted-foreground">No matching listings found.</p>}
             </div>
           )}
         </div>
       )}
-      <p className="text-[11px] text-muted-foreground">Prototype: image matching is simulated.</p>
     </div>
   );
 }
