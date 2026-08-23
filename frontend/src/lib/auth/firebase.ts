@@ -17,6 +17,11 @@ import {
   type Auth,
 } from "firebase/auth";
 
+type FirebaseSdkError = {
+  code?: string;
+  message?: string;
+};
+
 export type FirebaseWebConfig = {
   apiKey: string | null;
   authDomain: string | null;
@@ -104,4 +109,25 @@ export async function signInWithGooglePopup(
 export async function signOutOfFirebase(): Promise<void> {
   if (!cachedAuth) return;
   await firebaseSignOut(cachedAuth).catch(() => undefined);
+}
+
+/** Converts Firebase SDK errors into user-facing guidance. */
+export function toFirebaseAuthErrorMessage(error: unknown): string {
+  const code =
+    typeof error === "object" && error !== null
+      ? (error as FirebaseSdkError).code
+      : undefined;
+
+  switch (code) {
+    case "auth/configuration-not-found":
+      return "Google sign-in is not fully configured in Firebase. Enable Google in Firebase Authentication > Sign-in method and add localhost to Authorized domains.";
+    case "auth/unauthorized-domain":
+      return "This domain is not authorized for Firebase sign-in. Add localhost to Firebase Authentication > Settings > Authorized domains.";
+    case "auth/popup-blocked":
+      return "Popup was blocked by the browser. Allow popups for this site and try again.";
+    case "auth/popup-closed-by-user":
+      return "Google sign-in popup was closed before completion.";
+    default:
+      return error instanceof Error ? error.message : "Google sign-in failed";
+  }
 }

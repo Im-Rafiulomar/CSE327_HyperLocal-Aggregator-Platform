@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { getProduct } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -99,7 +98,7 @@ function ProfilePage() {
         <div className="card-surface mb-4 flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-accent p-4">
           <p className="text-sm text-muted-foreground">
             {offline
-              ? "The API isn’t reachable — showing demo profile data. Start the Express server to load your real account."
+              ? "The API isn’t reachable. Start the Express server to load your account."
               : "You’re browsing as a guest. Sign in to see your real profile, orders and rewards."}
           </p>
           <Link to="/login" search={{ redirect: "/profile" }} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
@@ -228,7 +227,7 @@ function ProfilePage() {
                   type="checkbox"
                   checked={!!prefs[key]}
                   onChange={(e) => setPrefs((p) => ({ ...p, [key]: e.target.checked }))}
-                  className="accent-[var(--primary)]"
+                  className="accent-primary"
                 />
               </label>
             ))}
@@ -252,20 +251,16 @@ function ProfilePage() {
 
           <h3 className="mt-5 font-display font-bold">Recently viewed</h3>
           <div className="mt-2 flex flex-wrap gap-2">
-            {viewed.map((id) => {
-              const p = getProduct(id);
-              if (!p) return null;
-              return (
-                <Link
-                  key={id}
-                  to="/product/$productId"
-                  params={{ productId: id }}
-                  className="flex items-center gap-2 rounded-lg border border-border px-2 py-1 text-xs hover:bg-secondary"
-                >
-                  <span>{p.emoji}</span> {(lang === "bn" ? p.nameBn : p.name).slice(0, 24)}
-                </Link>
-              );
-            })}
+            {viewed.map((slug) => (
+              <Link
+                key={slug}
+                to="/product/$productId"
+                params={{ productId: slug }}
+                className="flex items-center gap-2 rounded-lg border border-border px-2 py-1 text-xs hover:bg-secondary"
+              >
+                <span>📦</span> {slug.slice(0, 28)}
+              </Link>
+            ))}
           </div>
         </section>
       </div>

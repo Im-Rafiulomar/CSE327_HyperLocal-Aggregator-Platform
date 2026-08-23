@@ -92,7 +92,9 @@ function ResultList({ items, onPick }: { items: ApiProduct[]; onPick: (name: str
           onClick={() => onPick(p.name)}
           className="flex w-full items-center gap-3 rounded-lg border border-border p-2 text-left hover:bg-secondary"
         >
-          <span className="flex size-10 items-center justify-center rounded-md bg-secondary text-xl">{p.emoji ?? "📦"}</span>
+          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-xl">
+            {p.image ? <img src={p.image} alt="" className="size-full object-cover" /> : (p.emoji ?? "📦")}
+          </span>
           <span className="flex-1 text-sm">{p.name}</span>
           <span className="text-xs font-semibold text-primary">৳{p.price}</span>
         </button>

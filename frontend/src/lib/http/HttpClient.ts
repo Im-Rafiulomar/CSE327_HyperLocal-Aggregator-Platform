@@ -69,6 +69,32 @@ export class HttpClient {
     );
   }
 
+  /** Multipart upload — no Content-Type/JSON body, the browser sets the boundary. */
+  async uploadFile<T>(path: string, formData: FormData): Promise<T> {
+    const send = async () => {
+      const token = this.tokens.get();
+      const res = await fetch(`${this.baseUrl}${path}`, {
+        method: "POST",
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const text = await res.text();
+      const body = text ? JSON.parse(text) : {};
+      if (!res.ok) throw new ApiError(res.status, body.error ?? res.statusText, body.details);
+      return body as T;
+    };
+    try {
+      return await send();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401 && this.onUnauthorized) {
+        const renewed = await this.onUnauthorized(this, path);
+        if (renewed) return send();
+      }
+      throw err;
+    }
+  }
+
   delete<T>(path: string) {
     return this.request<T>(path, { method: "DELETE" });
   }

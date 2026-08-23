@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
-import { categories, products } from "@/lib/mock-data";
 import { useLang } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
+import { api } from "@/lib/api";
+import { useAsync } from "@/lib/hooks/useAsync";
+import type { ApiProduct } from "@/lib/api/types";
 import { Sparkles, Camera, Mic, ShieldCheck, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -21,13 +23,24 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { lang, t } = useLang();
   const { viewed, wishlist } = useStore();
-
-  const recos = [
-    { p: products.find((x) => x.id === "p6")!, why: lang === "bn" ? "আপনার উইশলিস্টের সাথে মিল" : "Matches your wishlist in beauty" },
-    { p: products.find((x) => x.id === "p2")!, why: lang === "bn" ? "আপনি হেডফোন দেখেছেন" : "Because you viewed headphones" },
-    { p: products.find((x) => x.id === "p3")!, why: lang === "bn" ? "আপনি প্রতি মাসে অর্ডার করেন" : "You reorder this roughly monthly" },
-    { p: products.find((x) => x.id === "p4")!, why: lang === "bn" ? "ঈদ মৌসুমের ট্রেন্ড" : "Seasonal trend: Eid collection" },
-  ];
+  const categories = useAsync(
+    () => api.products.categories() as Promise<{ items: string[] }>,
+    [],
+    true,
+  );
+  const recos = useAsync(
+    () => api.products.recommendations() as Promise<{ items: ApiProduct[] }>,
+    [wishlist.join(","), viewed.join(",")],
+    true,
+  );
+  const trending = useAsync(
+    () =>
+      api.products.list({ sort: "rating", page: 1, limit: 4 }) as Promise<{
+        items: ApiProduct[];
+      }>,
+    [],
+    true,
+  );
 
   return (
     <Layout>
@@ -65,15 +78,14 @@ function Index() {
       <section className="mt-8">
         <h2 className="font-display text-xl font-bold">{t("categories")}</h2>
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {categories.map((c) => (
+          {(categories.data?.items ?? []).map((c) => (
             <Link
-              key={c.id}
+              key={c}
               to="/search"
-              search={{ q: "", category: c.id }}
+              search={{ q: "", category: c }}
               className="card-surface flex flex-col items-center gap-1 p-4 text-center transition-transform hover:-translate-y-1"
             >
-              <span className="text-2xl">{c.emoji}</span>
-              <span className="text-xs font-semibold">{lang === "bn" ? c.nameBn : c.name}</span>
+              <span className="text-xs font-semibold">{c}</span>
             </Link>
           ))}
         </div>
@@ -91,8 +103,12 @@ function Index() {
           </div>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {recos.map(({ p, why }) => (
-            <ProductCard key={p.id} product={p} reason={why} />
+          {(recos.data?.items ?? []).map((p) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              reason={lang === "bn" ? "আপনার কার্যকলাপের উপর ভিত্তি করে" : "Based on your activity"}
+            />
           ))}
         </div>
       </section>
@@ -102,8 +118,8 @@ function Index() {
           <Zap className="size-5 text-accent" /> {t("trending")}
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {products.slice(0, 4).map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {(trending.data?.items ?? []).map((p) => (
+            <ProductCard key={p._id} product={p} />
           ))}
         </div>
       </section>

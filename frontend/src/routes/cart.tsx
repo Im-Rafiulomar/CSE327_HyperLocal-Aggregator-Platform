@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
-import { getProduct, getSeller } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { cartTotal, useStore } from "@/lib/store";
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
@@ -39,45 +38,43 @@ function CartPage() {
         <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-3">
             {cart.map((line) => {
-              const p = getProduct(line.productId)!;
-              const offer = p.offers.find((o) => o.sellerId === line.sellerId) ?? p.offers[0]!;
-              const s = getSeller(offer.sellerId);
               return (
                 <div key={line.productId} className="card-surface flex gap-3 p-3">
                   <Link
                     to="/product/$productId"
-                    params={{ productId: p.id }}
+                    params={{ productId: line.productSlug }}
                     className="flex size-20 shrink-0 items-center justify-center rounded-xl text-3xl"
-                    style={{ backgroundImage: p.image }}
+                    style={line.productImage ? { backgroundImage: line.productImage } : undefined}
                   >
-                    {p.emoji}
+                    {line.productEmoji ?? "📦"}
                   </Link>
                   <div className="flex-1">
-                    <Link to="/product/$productId" params={{ productId: p.id }} className="text-sm font-semibold hover:text-primary">
-                      {lang === "bn" ? p.nameBn : p.name}
+                    <Link to="/product/$productId" params={{ productId: line.productSlug }} className="text-sm font-semibold hover:text-primary">
+                      {lang === "bn" && line.productNameBn ? line.productNameBn : line.productName}
                     </Link>
                     <p className="text-[11px] text-muted-foreground">
-                      {lang === "bn" ? s.nameBn : s.name} · {offer.delivery}
+                      {lang === "bn" && line.sellerNameBn ? line.sellerNameBn : line.sellerName}
+                      {line.delivery ? ` · ${line.delivery}` : ""}
                     </p>
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex items-center rounded-lg border border-border">
-                        <button onClick={() => setQty(p.id, line.qty - 1)} className="p-1.5 hover:bg-secondary" aria-label="Decrease">
+                        <button onClick={() => void setQty(line.productId, line.qty - 1)} className="p-1.5 hover:bg-secondary" aria-label="Decrease">
                           <Minus className="size-3.5" />
                         </button>
                         <span className="w-8 text-center text-sm">{line.qty}</span>
-                        <button onClick={() => setQty(p.id, line.qty + 1)} className="p-1.5 hover:bg-secondary" aria-label="Increase">
+                        <button onClick={() => void setQty(line.productId, line.qty + 1)} className="p-1.5 hover:bg-secondary" aria-label="Increase">
                           <Plus className="size-3.5" />
                         </button>
                       </div>
-                      <button onClick={() => toggleWishlist(p.id)} className="text-xs text-primary underline">
+                      <button onClick={() => void toggleWishlist(line.productId)} className="text-xs text-primary underline">
                         Save for later
                       </button>
-                      <button onClick={() => removeFromCart(p.id)} className="ml-auto rounded-lg p-1.5 text-destructive hover:bg-destructive/10" aria-label="Remove">
+                      <button onClick={() => void removeFromCart(line.productId)} className="ml-auto rounded-lg p-1.5 text-destructive hover:bg-destructive/10" aria-label="Remove">
                         <Trash2 className="size-4" />
                       </button>
                     </div>
                   </div>
-                  <div className="font-display font-bold">{money(offer.price * line.qty, lang)}</div>
+                  <div className="font-display font-bold">{money(line.price * line.qty, lang)}</div>
                 </div>
               );
             })}

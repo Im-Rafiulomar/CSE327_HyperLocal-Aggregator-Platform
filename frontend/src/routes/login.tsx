@@ -98,8 +98,7 @@ function LoginPage() {
               <code className="font-mono">
                 cd server &amp;&amp; npm run dev
               </code>{" "}
-              and set <code className="font-mono">VITE_API_URL</code>. The app
-              keeps working with demo data meanwhile.
+              and set <code className="font-mono">VITE_API_URL</code>.
             </p>
           </div>
         )}

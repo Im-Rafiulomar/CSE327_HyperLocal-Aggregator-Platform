@@ -139,7 +139,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-7xl px-4 py-8 text-sm text-muted-foreground">
           <p className="font-display text-base font-semibold text-foreground">{t("brand")}</p>
           <p className="mt-1 max-w-lg">{t("tagline")}</p>
-          <p className="mt-4 text-xs">Front-end prototype · all data is mocked for demonstration.</p>
+          <p className="mt-4 text-xs">Data is loaded from the backend API.</p>
         </div>
       </footer>
 

@@ -39,7 +39,11 @@ export class ProductRepository extends BaseRepository {
   }
 
   byLabels(labels, limit = 8) {
-    const rx = labels.map((l) => new RegExp(l, "i"));
+    // Labels come from AI output / user transcripts and may contain regex
+    // metacharacters (e.g. "wi-fi", "3.5mm", "(used)") — escape them so a
+    // stray character can't throw a SyntaxError or run an arbitrary pattern.
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const rx = labels.filter(Boolean).map((l) => new RegExp(escapeRegex(l), "i"));
     return this.model
       .find({ $or: [{ name: { $in: rx } }, { category: { $in: rx } }, { tags: { $in: rx } }] })
       .limit(limit)

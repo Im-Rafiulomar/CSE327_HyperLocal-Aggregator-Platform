@@ -204,6 +204,7 @@ Set `CLIENT_ORIGIN` in `server/.env` to your deployed frontend URL and point
 | `MONGO_URI is not set` | Create `server/.env` from `.env.example`. |
 | `ECONNREFUSED 127.0.0.1:27017` | MongoDB is not running — start it (section 3). |
 | CORS error in the browser | `CLIENT_ORIGIN` must match the frontend URL exactly (`http://localhost:8080`). |
+| `Firebase: Error (auth/configuration-not-found)` | In Firebase Console, enable **Google** under Authentication → Sign-in method. Then in Authentication → Settings → Authorized domains add `localhost`. Also verify `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_PROJECT_ID`, and `FIREBASE_APP_ID` are set in `server/.env` and restart the API. |
 | Login works but reload signs you out | The refresh cookie is httpOnly and origin-scoped — use `localhost` (not `127.0.0.1`) on both sides. |
 | Port 5000 or 8080 already in use | Change `PORT` in `server/.env`, or stop the other process. |
 | Empty catalogue | Run `npm run seed` inside `server/`. |

@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { getProduct } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { cartTotal, useStore } from "@/lib/store";
 import { Banknote, CreditCard, Smartphone, Wallet, CheckCircle2 } from "lucide-react";
@@ -28,21 +27,36 @@ export const Route = createFileRoute("/checkout")({
 function CheckoutPage() {
   const { lang, t } = useLang();
   const navigate = useNavigate();
-  const { cart, placeOrder, coins, spendCoins } = useStore();
-  const [method, setMethod] = useState("cod");
+  const { cart, placeOrder, coins } = useStore();
+  const [method, setMethod] = useState<"cod" | "bkash" | "card" | "wallet">("cod");
   const [useCoins, setUseCoins] = useState(false);
   const [placed, setPlaced] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const subtotal = cartTotal(cart);
   const delivery = cart.length ? 60 : 0;
   const coinDiscount = useCoins ? Math.min(coins, 500) : 0;
   const total = Math.max(0, subtotal + delivery - coinDiscount);
 
-  const submit = () => {
+  const submit = async () => {
     if (!cart.length) return;
-    if (useCoins) spendCoins(coinDiscount);
-    const id = placeOrder(methods.find((m) => m.id === method)!.label, total);
-    setPlaced(id);
+    setBusy(true);
+    setError(null);
+    try {
+      const id = await placeOrder(method, {
+        line1: "House 14, Road 9/A, Flat 3B",
+        area: "Dhanmondi",
+        city: "Dhaka",
+        label: "Home",
+        coinsToUse: useCoins ? coinDiscount : 0,
+      });
+      setPlaced(id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Checkout failed");
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (placed) {
@@ -120,19 +134,17 @@ function CheckoutPage() {
         <aside className="card-surface h-fit space-y-3 p-4">
           <h2 className="font-display font-bold">{cart.length} items</h2>
           {cart.map((l) => {
-            const p = getProduct(l.productId)!;
-            const offer = p.offers.find((o) => o.sellerId === l.sellerId) ?? p.offers[0]!;
             return (
               <div key={l.productId} className="flex justify-between text-sm">
                 <span className="truncate pr-2 text-muted-foreground">
-                  {l.qty}× {lang === "bn" ? p.nameBn : p.name}
+                  {l.qty}× {lang === "bn" && l.productNameBn ? l.productNameBn : l.productName}
                 </span>
-                <span>{money(offer.price * l.qty, lang)}</span>
+                <span>{money(l.price * l.qty, lang)}</span>
               </div>
             );
           })}
           <label className="flex items-center gap-2 border-t border-border pt-3 text-sm">
-            <input type="checkbox" checked={useCoins} onChange={(e) => setUseCoins(e.target.checked)} className="accent-[var(--primary)]" />
+            <input type="checkbox" checked={useCoins} onChange={(e) => setUseCoins(e.target.checked)} className="accent-primary" />
             Redeem 500 {t("coins")} (−{money(500, lang)})
           </label>
           <div className="space-y-1 border-t border-border pt-3 text-sm text-muted-foreground">
@@ -144,12 +156,13 @@ function CheckoutPage() {
             </div>
           </div>
           <button
-            onClick={submit}
-            disabled={!cart.length}
+            onClick={() => void submit()}
+            disabled={!cart.length || busy}
             className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
-            {t("placeOrder")}
+            {busy ? "Placing order..." : t("placeOrder")}
           </button>
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </aside>
       </div>
     </Layout>

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { getProduct, getSeller, trackingSteps } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { Check, Package, Truck, Home, ClipboardCheck } from "lucide-react";
@@ -30,7 +29,6 @@ function OrdersPage() {
       <h1 className="font-display text-2xl font-bold">{t("orders")}</h1>
       <div className="mt-4 space-y-3">
         {orders.map((o) => {
-          const s = getSeller(o.seller);
           const expanded = open === o.id;
           return (
             <div key={o.id} className="card-surface overflow-hidden">
@@ -39,23 +37,23 @@ function OrdersPage() {
                 <div className="flex-1">
                   <p className="text-sm font-semibold">#{o.id}</p>
                   <p className="text-[11px] text-muted-foreground">
-                    {o.date} · {lang === "bn" ? s.nameBn : s.name} · {o.payment}
+                    {o.date} · {o.payment}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-display font-bold">{money(o.total, lang)}</p>
-                  <p className="text-[11px] text-primary">{lang === "bn" ? trackingSteps[o.status]!.bn : trackingSteps[o.status]!.en}</p>
+                  <p className="text-[11px] text-primary">{o.status.replace(/_/g, " ")}</p>
                 </div>
               </button>
 
               {expanded && (
                 <div className="border-t border-border p-4">
                   <div className="flex items-center">
-                    {trackingSteps.map((step, i) => {
-                      const done = i <= o.status;
+                    {o.tracking.map((step, i) => {
+                      const done = step.done;
                       const Icon = icons[i]!;
                       return (
-                        <div key={step.key} className="flex flex-1 items-center last:flex-none">
+                        <div key={step.label + i} className="flex flex-1 items-center last:flex-none">
                           <div className="flex flex-col items-center gap-1">
                             <span
                               className={
@@ -63,14 +61,14 @@ function OrdersPage() {
                                 (done ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground")
                               }
                             >
-                              {done && i < o.status ? <Check className="size-4" /> : <Icon className="size-4" />}
+                              {done ? <Check className="size-4" /> : <Icon className="size-4" />}
                             </span>
                             <span className={"w-20 text-center text-[10px] " + (done ? "font-semibold" : "text-muted-foreground")}>
-                              {lang === "bn" ? step.bn : step.en}
+                              {lang === "bn" && step.labelBn ? step.labelBn : step.label}
                             </span>
                           </div>
-                          {i < trackingSteps.length - 1 && (
-                            <div className={"mb-5 h-0.5 flex-1 " + (i < o.status ? "bg-primary" : "bg-border")} />
+                          {i < o.tracking.length - 1 && (
+                            <div className={"mb-5 h-0.5 flex-1 " + (done ? "bg-primary" : "bg-border")} />
                           )}
                         </div>
                       );
@@ -88,20 +86,17 @@ function OrdersPage() {
 
                   <div className="mt-3 space-y-2">
                     {o.items.map((it) => {
-                      const p = getProduct(it.productId)!;
                       return (
-                        <Link
+                        <div
                           key={it.productId}
-                          to="/product/$productId"
-                          params={{ productId: p.id }}
-                          className="flex items-center gap-3 rounded-lg border border-border p-2 hover:bg-secondary"
+                          className="flex items-center gap-3 rounded-lg border border-border p-2"
                         >
-                          <span className="flex size-10 items-center justify-center rounded-md text-lg" style={{ backgroundImage: p.image }}>
-                            {p.emoji}
+                          <span className="flex size-10 items-center justify-center rounded-md text-lg">
+                            {it.emoji ?? "📦"}
                           </span>
-                          <span className="flex-1 text-sm">{lang === "bn" ? p.nameBn : p.name}</span>
+                          <span className="flex-1 text-sm">{it.name}</span>
                           <span className="text-xs text-muted-foreground">×{it.qty}</span>
-                        </Link>
+                        </div>
                       );
                     })}
                   </div>

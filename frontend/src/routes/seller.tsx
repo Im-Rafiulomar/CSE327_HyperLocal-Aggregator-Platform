@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { ListingForm } from "@/components/seller/ListingForm";
-import { products as mockProducts, sellers as mockSellers } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -29,8 +28,6 @@ type Dashboard = {
   insights: { tag: string; text: string }[];
 };
 
-const salesBars = [42, 55, 38, 70, 64, 88, 76];
-
 function SellerPage() {
   const { lang } = useLang();
   const { user, sellerProfile, isSeller, loading: authLoading } = useAuth();
@@ -52,7 +49,20 @@ function SellerPage() {
     );
   }
 
-  if (!live) return <DemoDashboard />;
+  if (!live) {
+    return (
+      <Layout>
+        <div className="card-surface mb-4 flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-accent p-4">
+          <p className="text-sm text-muted-foreground">
+            Sign in with a seller account to load your shop data from the backend.
+          </p>
+          <Link to="/login" search={{ redirect: "/seller" }} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            Sign in as seller
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
 
   const data = dash.data;
   const shop = data?.seller ?? sellerProfile;
@@ -190,7 +200,13 @@ function ListingRow({
 
   return (
     <div className="flex flex-wrap items-center gap-3 py-3">
-      <span className="flex size-10 items-center justify-center rounded-lg bg-secondary text-lg">{product.emoji ?? "📦"}</span>
+      <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-secondary text-lg">
+        {product.image ? (
+          <img src={product.image} alt="" className="size-full object-cover" />
+        ) : (
+          (product.emoji ?? "📦")
+        )}
+      </span>
       <div className="min-w-40 flex-1">
         <p className="text-sm font-medium">{lang === "bn" && product.nameBn ? product.nameBn : product.name}</p>
         <p className="text-[11px] text-muted-foreground">
@@ -221,112 +237,5 @@ function ListingRow({
         {busy === "delete" ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
       </button>
     </div>
-  );
-}
-
-/** Offline / signed-out preview backed by the demo catalogue. */
-function DemoDashboard() {
-  const { lang } = useLang();
-  const seller = mockSellers[0]!;
-  const listings = mockProducts.filter((p) => p.offers.some((o) => o.sellerId === seller.id));
-
-  return (
-    <Layout>
-      <div className="card-surface mb-4 flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-accent p-4">
-        <p className="text-sm text-muted-foreground">
-          Demo shop view. Sign in with a seller account to manage your real listings, pricing and stock.
-        </p>
-        <Link to="/login" search={{ redirect: "/seller" }} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-          Sign in as seller
-        </Link>
-      </div>
-
-      <div className="card-surface flex flex-wrap items-center gap-4 p-6">
-        <span className="flex size-16 items-center justify-center rounded-2xl bg-accent-gradient text-2xl text-accent-foreground">🏪</span>
-        <div className="flex-1">
-          <h1 className="flex items-center gap-2 font-display text-2xl font-bold">
-            {lang === "bn" ? seller.nameBn : seller.name}
-            {seller.verified && <ShieldCheck className="size-5 text-success" />}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {seller.area} · since {seller.since} · replies in {seller.responseTime}
-          </p>
-          <p className="mt-1 flex items-center gap-1 text-sm">
-            <Star className="size-4 fill-accent text-accent" /> {seller.rating} · {listings.length} active listings
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 sm:grid-cols-4">
-        {[
-          { icon: TrendingUp, label: "Sales this week", value: money(184500, lang) },
-          { icon: Package, label: "Orders", value: "63" },
-          { icon: Clock, label: "On-time delivery", value: "96%" },
-          { icon: Star, label: "Rating trend", value: "+0.2" },
-        ].map((s) => (
-          <div key={s.label} className="card-surface p-4">
-            <s.icon className="size-5 text-primary" />
-            <div className="mt-2 font-display text-xl font-bold">{s.value}</div>
-            <div className="text-[11px] text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px]">
-        <section className="card-surface p-5">
-          <h2 className="font-display font-bold">Last 7 days</h2>
-          <div className="mt-4 flex h-40 items-end gap-2">
-            {salesBars.map((v, i) => (
-              <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                <div className="w-full rounded-t-lg bg-hero-gradient" style={{ height: `${v}%` }} />
-                <span className="text-[10px] text-muted-foreground">{["S", "M", "T", "W", "T", "F", "S"][i]}</span>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="mt-6 font-display font-bold">Your listings</h3>
-          <div className="mt-2 divide-y divide-border">
-            {listings.map((p) => {
-              const o = p.offers.find((x) => x.sellerId === seller.id)!;
-              const cheapest = Math.min(...p.offers.map((x) => x.price));
-              return (
-                <div key={p.id} className="flex items-center gap-3 py-3">
-                  <span className="flex size-10 items-center justify-center rounded-lg text-lg" style={{ backgroundImage: p.image }}>
-                    {p.emoji}
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{lang === "bn" ? p.nameBn : p.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{o.stock} in stock</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">{money(o.price, lang)}</p>
-                    {o.price > cheapest && (
-                      <p className="text-[11px] text-destructive">{money(o.price - cheapest, lang)} above lowest</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <aside className="card-surface h-fit space-y-3 p-5">
-          <h2 className="flex items-center gap-2 font-display font-bold">
-            <Sparkles className="size-4 text-primary" /> AI decision support
-          </h2>
-          {[
-            { tag: "Pricing", text: "Your headphone listing is ৳151 above the lowest offer. Dropping to ৳6,349 would win an estimated 28% more local orders." },
-            { tag: "Stock", text: "Basmati rice sells 22 units/week here. Current stock covers 6 days — restock before Thursday." },
-            { tag: "Visibility", text: "Adding 3 more photos and a Bangla description raises listing views by ~34% on average." },
-            { tag: "Timing", text: "Your buyers order most between 7–10 PM. Schedule flash offers in that window." },
-          ].map((i) => (
-            <div key={i.tag} className="rounded-xl bg-secondary p-3">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-primary">{i.tag}</span>
-              <p className="text-sm leading-snug">{i.text}</p>
-            </div>
-          ))}
-        </aside>
-      </div>
-    </Layout>
   );
 }

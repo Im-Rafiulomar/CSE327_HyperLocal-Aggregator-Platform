@@ -4,6 +4,7 @@ import {
   envConfig,
   hasEnvConfig,
   signInWithGooglePopup,
+  toFirebaseAuthErrorMessage,
   type FirebaseWebConfig,
 } from "@/lib/auth/firebase";
 import { useAuth } from "@/lib/auth";
@@ -68,7 +69,7 @@ export function FirebaseSignInButton({
       await loginWithFirebase({ idToken, role, shopName, area });
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
+      setError(toFirebaseAuthErrorMessage(err));
     } finally {
       setBusy(false);
     }

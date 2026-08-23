@@ -1,5 +1,6 @@
 import { BaseRepository } from "./BaseRepository";
 import type {
+  ApiReview,
   ApiProduct,
   ApiUser,
   ListingInput,
@@ -63,20 +64,24 @@ export class AuthRepository extends BaseRepository {
 
 export class ProductRepository extends BaseRepository {
   list(params: Record<string, string | number | undefined> = {}) {
-    return this.http.get<Paginated<unknown>>(`/products?${this.qs(params)}`);
+    return this.http.get<Paginated<ApiProduct>>(`/products?${this.qs(params)}`);
+  }
+
+  categories() {
+    return this.http.get<{ items: string[] }>("/products/categories");
   }
 
   detail(slug: string) {
     return this.http.get<{
-      product: unknown;
-      reviews: unknown[];
+      product: ApiProduct;
+      reviews: ApiReview[];
       aiSummary: string;
       flaggedCount: number;
     }>(`/products/${slug}`);
   }
 
   recommendations() {
-    return this.http.get<{ items: unknown[] }>("/products/recommendations");
+    return this.http.get<{ items: ApiProduct[] }>("/products/recommendations");
   }
 
   updateOffer(
@@ -265,6 +270,13 @@ export class SellerRepository extends BaseRepository {
     return this.http.delete<{ removed: boolean; productDeleted: boolean }>(
       `/sellers/me/products/${slug}`,
     );
+  }
+
+  /** Uploads a product photo, returning the URL to store on the listing's `image` field. */
+  uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append("image", file);
+    return this.http.uploadFile<{ url: string }>("/uploads/products", formData);
   }
 }
 

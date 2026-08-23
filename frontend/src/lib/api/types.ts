@@ -56,6 +56,16 @@ export type ApiProduct = {
   offers: ApiOffer[];
 };
 
+export type ApiReview = {
+  _id: string;
+  authorName: string;
+  rating: number;
+  text: string;
+  suspicious?: boolean;
+  reason?: string;
+  createdAt?: string;
+};
+
 export type Session = { user: ApiUser; sellerProfile: SellerProfile | null; accessToken: string };
 
 export type Paginated<T> = { items: T[]; page: number; total: number };

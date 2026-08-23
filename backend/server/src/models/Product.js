@@ -13,7 +13,7 @@ const offerSchema = new mongoose.Schema(
 const productSchema = new mongoose.Schema(
   {
     slug: { type: String, required: true, unique: true, index: true },
-    name: { type: String, required: true, trim: true, index: "text" },
+    name: { type: String, required: true, trim: true },
     nameBn: { type: String, default: "" },
     brand: { type: String, default: "", index: true },
     category: { type: String, required: true, index: true },
