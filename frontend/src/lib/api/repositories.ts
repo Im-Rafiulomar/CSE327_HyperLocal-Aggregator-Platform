@@ -1,5 +1,14 @@
 import { BaseRepository } from "./BaseRepository";
-import type { ApiProduct, ApiUser, ListingInput, Paginated, SellerProfile, Session, VisionResult, VoiceResult } from "./types";
+import type {
+  ApiProduct,
+  ApiUser,
+  ListingInput,
+  Paginated,
+  SellerProfile,
+  Session,
+  VisionResult,
+  VoiceResult,
+} from "./types";
 
 export class AuthRepository extends BaseRepository {
   register(data: {
@@ -18,17 +27,22 @@ export class AuthRepository extends BaseRepository {
     return this.http.post<Session>("/auth/login", data);
   }
 
-  googleConfig() {
-    return this.http.get<{ clientId: string | null }>("/auth/google/config");
+  firebaseConfig() {
+    return this.http.get<{
+      apiKey: string | null;
+      authDomain: string | null;
+      projectId: string | null;
+      appId: string | null;
+    }>("/auth/firebase/config");
   }
 
-  loginWithGoogle(data: {
-    credential: string;
+  loginWithFirebase(data: {
+    idToken: string;
     role?: "buyer" | "seller" | undefined;
     shopName?: string | undefined;
     area?: string | undefined;
   }) {
-    return this.http.post<Session>("/auth/google", data);
+    return this.http.post<Session>("/auth/firebase", data);
   }
 
   refresh() {
@@ -40,7 +54,10 @@ export class AuthRepository extends BaseRepository {
   }
 
   me() {
-    return this.http.get<{ user: ApiUser; sellerProfile: SellerProfile | null }>("/auth/me");
+    return this.http.get<{
+      user: ApiUser;
+      sellerProfile: SellerProfile | null;
+    }>("/auth/me");
   }
 }
 
@@ -50,16 +67,22 @@ export class ProductRepository extends BaseRepository {
   }
 
   detail(slug: string) {
-    return this.http.get<{ product: unknown; reviews: unknown[]; aiSummary: string; flaggedCount: number }>(
-      `/products/${slug}`,
-    );
+    return this.http.get<{
+      product: unknown;
+      reviews: unknown[];
+      aiSummary: string;
+      flaggedCount: number;
+    }>(`/products/${slug}`);
   }
 
   recommendations() {
     return this.http.get<{ items: unknown[] }>("/products/recommendations");
   }
 
-  updateOffer(slug: string, data: { price: number; stock: number; delivery?: string }) {
+  updateOffer(
+    slug: string,
+    data: { price: number; stock: number; delivery?: string },
+  ) {
     return this.http.patch(`/products/${slug}/offer`, data);
   }
 }
@@ -104,9 +127,18 @@ export class OrderRepository extends BaseRepository {
   checkout(data: {
     paymentMethod: "cod" | "bkash" | "card" | "wallet";
     coinsToUse?: number;
-    address: { line1: string; label?: string; area?: string; city?: string; postcode?: string };
+    address: {
+      line1: string;
+      label?: string;
+      area?: string;
+      city?: string;
+      postcode?: string;
+    };
   }) {
-    return this.http.post<{ order: unknown; coins: number }>("/orders/checkout", data);
+    return this.http.post<{ order: unknown; coins: number }>(
+      "/orders/checkout",
+      data,
+    );
   }
 
   setStatus(code: string, status: string) {
@@ -119,7 +151,13 @@ export class UserRepository extends BaseRepository {
     return this.http.patch<{ user: ApiUser }>("/users/me", data);
   }
 
-  addAddress(data: { line1: string; label?: string; area?: string; city?: string; isDefault?: boolean }) {
+  addAddress(data: {
+    line1: string;
+    label?: string;
+    area?: string;
+    city?: string;
+    isDefault?: boolean;
+  }) {
     return this.http.post("/users/me/addresses", data);
   }
 
@@ -132,7 +170,9 @@ export class UserRepository extends BaseRepository {
   }
 
   toggleWishlist(productId: string) {
-    return this.http.post<{ saved: boolean }>(`/users/me/wishlist/${productId}`);
+    return this.http.post<{ saved: boolean }>(
+      `/users/me/wishlist/${productId}`,
+    );
   }
 
   notifications() {
@@ -150,7 +190,11 @@ export class RewardRepository extends BaseRepository {
   }
 
   me() {
-    return this.http.get<{ coins: number; tier: string; coinsToNextTier: number }>("/rewards/me");
+    return this.http.get<{
+      coins: number;
+      tier: string;
+      coinsToNextTier: number;
+    }>("/rewards/me");
   }
 
   redeem(code: string) {
@@ -164,13 +208,17 @@ export class SellerRepository extends BaseRepository {
   }
 
   detail(slug: string) {
-    return this.http.get<{ seller: unknown; listings: unknown[] }>(`/sellers/${slug}`);
+    return this.http.get<{ seller: unknown; listings: unknown[] }>(
+      `/sellers/${slug}`,
+    );
   }
 
   dashboard() {
-    return this.http.get<{ metrics: Record<string, number>; listings: unknown[]; insights: unknown[] }>(
-      "/sellers/me/dashboard",
-    );
+    return this.http.get<{
+      metrics: Record<string, number>;
+      listings: unknown[];
+      insights: unknown[];
+    }>("/sellers/me/dashboard");
   }
 
   orders() {
@@ -179,11 +227,20 @@ export class SellerRepository extends BaseRepository {
 
   /** Seller-owned catalogue management. */
   myProfile() {
-    return this.http.get<{ seller: SellerProfile; listings: ApiProduct[] }>("/sellers/me/profile");
+    return this.http.get<{ seller: SellerProfile; listings: ApiProduct[] }>(
+      "/sellers/me/profile",
+    );
   }
 
-  updateMyProfile(data: Partial<Pick<SellerProfile, "name" | "nameBn" | "area" | "responseTime">>) {
-    return this.http.patch<{ seller: SellerProfile }>("/sellers/me/profile", data);
+  updateMyProfile(
+    data: Partial<
+      Pick<SellerProfile, "name" | "nameBn" | "area" | "responseTime">
+    >,
+  ) {
+    return this.http.patch<{ seller: SellerProfile }>(
+      "/sellers/me/profile",
+      data,
+    );
   }
 
   myProducts() {
@@ -191,21 +248,32 @@ export class SellerRepository extends BaseRepository {
   }
 
   createProduct(data: ListingInput) {
-    return this.http.post<{ product: ApiProduct }>("/sellers/me/products", data);
+    return this.http.post<{ product: ApiProduct }>(
+      "/sellers/me/products",
+      data,
+    );
   }
 
   updateProduct(slug: string, data: Partial<ListingInput>) {
-    return this.http.patch<{ product: ApiProduct }>(`/sellers/me/products/${slug}`, data);
+    return this.http.patch<{ product: ApiProduct }>(
+      `/sellers/me/products/${slug}`,
+      data,
+    );
   }
 
   deleteProduct(slug: string) {
-    return this.http.delete<{ removed: boolean; productDeleted: boolean }>(`/sellers/me/products/${slug}`);
+    return this.http.delete<{ removed: boolean; productDeleted: boolean }>(
+      `/sellers/me/products/${slug}`,
+    );
   }
 }
 
 export class AiRepository extends BaseRepository {
   assistant(message: string) {
-    return this.http.post<{ intent: string; reply: string; data?: unknown }>("/ai/assistant", { message });
+    return this.http.post<{ intent: string; reply: string; data?: unknown }>(
+      "/ai/assistant",
+      { message },
+    );
   }
 
   status() {
@@ -222,7 +290,12 @@ export class AiRepository extends BaseRepository {
   }
 
   /** AI voice search — send recorded audio, or a Web Speech transcript. */
-  voiceSearch(input: { audio?: string; mimeType?: string; language?: string; transcript?: string }) {
+  voiceSearch(input: {
+    audio?: string;
+    mimeType?: string;
+    language?: string;
+    transcript?: string;
+  }) {
     return this.http.post<VoiceResult>("/ai/voice-search", input);
   }
 }

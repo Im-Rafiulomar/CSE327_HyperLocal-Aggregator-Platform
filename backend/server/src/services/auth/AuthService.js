@@ -1,7 +1,7 @@
 import { userRepository } from "../../repositories/index.js";
 import { Seller } from "../../models/Seller.js";
 import { tokenService } from "./TokenService.js";
-import { googleIdentityService } from "./GoogleIdentityService.js";
+import { firebaseAuthService } from "./FirebaseAuthService.js";
 import { unauthorized, badRequest } from "../../utils/errors.js";
 
 /** Factory Method: builds the seller profile that a seller account needs. */
@@ -24,11 +24,11 @@ export class SellerProfileFactory {
  * Express or Mongoose specifics (DIP).
  */
 export class AuthService {
-  constructor({ users = userRepository, tokens = tokenService, sellerFactory = SellerProfileFactory, google = googleIdentityService } = {}) {
+  constructor({ users = userRepository, tokens = tokenService, sellerFactory = SellerProfileFactory, firebase = firebaseAuthService } = {}) {
     this.users = users;
     this.tokens = tokens;
     this.sellerFactory = sellerFactory;
-    this.google = google;
+    this.firebase = firebase;
   }
 
   /** Issues a session for a user document (Template Method shared by every strategy). */
@@ -40,11 +40,12 @@ export class AuthService {
   }
 
   /**
-   * Google Identity Services sign-in / sign-up. The ID token is verified
-   * server-side; the client never decides who it is.
+   * Firebase Authentication sign-in / sign-up. The ID token (obtained
+   * client-side via the Firebase Web SDK — Google, email link, phone, etc.)
+   * is verified server-side; the client never decides who it is.
    */
-  async loginWithGoogle({ credential, role = "buyer", shopName, area }) {
-    const profile = await this.google.verify(credential);
+  async loginWithFirebase({ idToken, role = "buyer", shopName, area }) {
+    const profile = await this.firebase.verify(idToken);
 
     let user = await this.users.findByEmailWithSecrets(profile.email);
 
@@ -53,17 +54,17 @@ export class AuthService {
         name: profile.name,
         email: profile.email,
         role: role === "seller" ? "seller" : "buyer",
-        authProvider: "google",
-        googleId: profile.sub,
+        authProvider: "firebase",
+        firebaseUid: profile.sub,
         coins: 100,
       });
       if (user.role === "seller") {
         const seller = await this.sellerFactory.createFor(user, { shopName, area });
         user.seller = seller._id;
       }
-    } else if (!user.googleId) {
-      // link the Google identity to the existing local account
-      user.googleId = profile.sub;
+    } else if (!user.firebaseUid) {
+      // link the Firebase identity to the existing local account
+      user.firebaseUid = profile.sub;
     }
 
     return this.issueSession(user);

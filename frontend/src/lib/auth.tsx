@@ -1,5 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { api, setAccessToken, ApiError, type ApiUser } from "./api";
+import { signOutOfFirebase } from "./auth/firebase";
 import type { SellerProfile } from "./api/types";
 
 export type RegisterInput = {
@@ -12,8 +21,8 @@ export type RegisterInput = {
   area?: string | undefined;
 };
 
-export type GoogleLoginInput = {
-  credential: string;
+export type FirebaseLoginInput = {
+  idToken: string;
   role?: "buyer" | "seller" | undefined;
   shopName?: string | undefined;
   area?: string | undefined;
@@ -28,8 +37,8 @@ type AuthState = {
   offline: boolean;
   isSeller: boolean;
   login: (email: string, password: string) => Promise<void>;
-  /** Google Identity Services sign-in / sign-up */
-  loginWithGoogle: (input: GoogleLoginInput) => Promise<void>;
+  /** Firebase Authentication sign-in / sign-up (Google popup, etc.) */
+  loginWithFirebase: (input: FirebaseLoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
   /** re-reads the session from the API (after profile edits) */
@@ -47,16 +56,25 @@ const AuthContext = createContext<AuthState | null>(null);
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<ApiUser | null>(null);
-  const [sellerProfile, setSellerProfileState] = useState<SellerProfile | null>(null);
+  const [sellerProfile, setSellerProfileState] = useState<SellerProfile | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
 
-  const applySession = useCallback((res: { user: ApiUser; sellerProfile?: SellerProfile | null; accessToken?: string }) => {
-    if (res.accessToken) setAccessToken(res.accessToken);
-    setUserState(res.user);
-    setSellerProfileState(res.sellerProfile ?? null);
-    setOffline(false);
-  }, []);
+  const applySession = useCallback(
+    (res: {
+      user: ApiUser;
+      sellerProfile?: SellerProfile | null;
+      accessToken?: string;
+    }) => {
+      if (res.accessToken) setAccessToken(res.accessToken);
+      setUserState(res.user);
+      setSellerProfileState(res.sellerProfile ?? null);
+      setOffline(false);
+    },
+    [],
+  );
 
   // silent session restore from the httpOnly refresh cookie
   useEffect(() => {
@@ -82,9 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [applySession],
   );
 
-  const loginWithGoogle = useCallback<AuthState["loginWithGoogle"]>(
+  const loginWithFirebase = useCallback<AuthState["loginWithFirebase"]>(
     async (input) => {
-      applySession(await api.auth.loginWithGoogle(input));
+      applySession(await api.auth.loginWithFirebase(input));
     },
     [applySession],
   );
@@ -98,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await api.auth.logout().catch(() => undefined);
+    await signOutOfFirebase();
     setAccessToken(null);
     setUserState(null);
     setSellerProfileState(null);
@@ -116,14 +135,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       offline,
       isSeller: user?.role === "seller" || user?.role === "admin",
       login,
-      loginWithGoogle,
+      loginWithFirebase,
       register,
       logout,
       reload,
       setUser: setUserState,
       setSellerProfile: setSellerProfileState,
     }),
-    [user, sellerProfile, loading, offline, login, loginWithGoogle, register, logout, reload],
+    [
+      user,
+      sellerProfile,
+      loading,
+      offline,
+      login,
+      loginWithFirebase,
+      register,
+      logout,
+      reload,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

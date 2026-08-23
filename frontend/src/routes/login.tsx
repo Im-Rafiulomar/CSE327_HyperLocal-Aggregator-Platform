@@ -2,19 +2,29 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Layout } from "@/components/Layout";
 import { useAuth } from "@/lib/auth";
-import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { FirebaseSignInButton } from "@/components/FirebaseSignInButton";
 import { Eye, EyeOff, LogIn, ServerCrash, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search["redirect"] === "string" ? (search["redirect"] as string) : undefined,
+    redirect:
+      typeof search["redirect"] === "string"
+        ? (search["redirect"] as string)
+        : undefined,
   }),
   head: () => ({
     meta: [
       { title: "Sign in to your account — HyperLocal" },
-      { name: "description", content: "Sign in to track orders, sync your cart and wishlist, and redeem reward coins." },
+      {
+        name: "description",
+        content:
+          "Sign in to track orders, sync your cart and wishlist, and redeem reward coins.",
+      },
       { property: "og:title", content: "Sign in — HyperLocal" },
-      { property: "og:description", content: "Access your HyperLocal buyer or seller account." },
+      {
+        property: "og:description",
+        content: "Access your HyperLocal buyer or seller account.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -75,15 +85,21 @@ function LoginPage() {
       <div className="mx-auto max-w-md">
         <h1 className="font-display text-2xl font-bold">Sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {user ? `Signed in as ${user.name}.` : "Use your HyperLocal buyer or seller account."}
+          {user
+            ? `Signed in as ${user.name}.`
+            : "Use your HyperLocal buyer or seller account."}
         </p>
 
         {offline && (
           <div className="card-surface mt-4 flex gap-3 p-4 text-sm">
             <ServerCrash className="size-5 shrink-0 text-destructive" />
             <p className="text-muted-foreground">
-              The Express API is not reachable. Start it with <code className="font-mono">cd server &amp;&amp; npm run dev</code>{" "}
-              and set <code className="font-mono">VITE_API_URL</code>. The app keeps working with demo data meanwhile.
+              The Express API is not reachable. Start it with{" "}
+              <code className="font-mono">
+                cd server &amp;&amp; npm run dev
+              </code>{" "}
+              and set <code className="font-mono">VITE_API_URL</code>. The app
+              keeps working with demo data meanwhile.
             </p>
           </div>
         )}
@@ -119,13 +135,20 @@ function LoginPage() {
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground"
               >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
               </button>
             </div>
           </label>
 
           {error && (
-            <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p
+              role="alert"
+              className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </p>
           )}
@@ -139,13 +162,18 @@ function LoginPage() {
           </button>
 
           <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-border" /> or{" "}
+            <span className="h-px flex-1 bg-border" />
           </div>
 
-          <GoogleSignInButton text="signin_with" onSuccess={() => navigate({ to: redirect ?? "/", replace: true })} />
+          <FirebaseSignInButton
+            text="signin_with"
+            onSuccess={() => navigate({ to: redirect ?? "/", replace: true })}
+          />
 
           <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
-            <ShieldCheck className="size-3.5" /> Sessions use short-lived tokens with an httpOnly refresh cookie.
+            <ShieldCheck className="size-3.5" /> Sessions use short-lived tokens
+            with an httpOnly refresh cookie.
           </p>
 
           <p className="text-center text-xs text-muted-foreground">

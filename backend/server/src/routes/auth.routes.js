@@ -57,19 +57,27 @@ router.post(
   asyncHandler(async (req, res) => await sendSession(res, 200, await authService.login(req.body))),
 );
 
-const googleSchema = z.object({
-  credential: z.string().min(20).max(4096),
+const firebaseSchema = z.object({
+  idToken: z.string().min(20).max(4096),
   role: z.enum(["buyer", "seller"]).default("buyer"),
   shopName: z.string().trim().min(2).max(80).optional(),
   area: z.string().trim().max(120).optional(),
 });
 
-router.get("/google/config", (_req, res) => res.json({ clientId: process.env.GOOGLE_CLIENT_ID || null }));
+/** Public, non-secret web config the Firebase client SDK needs to initialize. */
+router.get("/firebase/config", (_req, res) =>
+  res.json({
+    apiKey: process.env.FIREBASE_API_KEY || null,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || null,
+    projectId: process.env.FIREBASE_PROJECT_ID || null,
+    appId: process.env.FIREBASE_APP_ID || null,
+  }),
+);
 
 router.post(
-  "/google",
-  validate(googleSchema),
-  asyncHandler(async (req, res) => await sendSession(res, 200, await authService.loginWithGoogle(req.body))),
+  "/firebase",
+  validate(firebaseSchema),
+  asyncHandler(async (req, res) => await sendSession(res, 200, await authService.loginWithFirebase(req.body))),
 );
 
 router.post(
