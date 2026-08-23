@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
@@ -35,6 +37,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -43,6 +50,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RewardsRoute = RewardsRouteImport.update({
@@ -75,8 +87,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRoute
@@ -87,8 +101,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRoute
@@ -100,8 +116,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRoute
@@ -114,8 +132,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/login'
     | '/orders'
     | '/profile'
+    | '/register'
     | '/rewards'
     | '/search'
     | '/seller'
@@ -126,8 +146,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/login'
     | '/orders'
     | '/profile'
+    | '/register'
     | '/rewards'
     | '/search'
     | '/seller'
@@ -138,8 +160,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/login'
     | '/orders'
     | '/profile'
+    | '/register'
     | '/rewards'
     | '/search'
     | '/seller'
@@ -151,8 +175,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
+  RegisterRoute: typeof RegisterRoute
   RewardsRoute: typeof RewardsRoute
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRoute
@@ -183,6 +209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders': {
       id: '/orders'
       path: '/orders'
@@ -195,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rewards': {
@@ -239,8 +279,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  LoginRoute: LoginRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,
+  RegisterRoute: RegisterRoute,
   RewardsRoute: RewardsRoute,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRoute,

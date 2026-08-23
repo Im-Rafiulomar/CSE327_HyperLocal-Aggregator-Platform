@@ -1,26 +1,34 @@
 import { Link } from "@tanstack/react-router";
-import type { Product } from "@/lib/mock-data";
-import { getSeller } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
+import type { ApiOffer, ApiProduct, SellerProfile } from "@/lib/api/types";
 import { Heart, Star, MapPin } from "lucide-react";
 
-export function ProductCard({ product, reason }: { product: Product; reason?: string | undefined }) {
+function sellerFromOffer(offer: ApiOffer): SellerProfile | null {
+  return typeof offer.seller === "string" ? null : offer.seller;
+}
+
+function sellerIdFromOffer(offer: ApiOffer): string {
+  return typeof offer.seller === "string" ? offer.seller : offer.seller._id;
+}
+
+export function ProductCard({ product, reason }: { product: ApiProduct; reason?: string | undefined }) {
   const { lang, t } = useLang();
   const { wishlist, toggleWishlist, addToCart } = useStore();
-  const saved = wishlist.includes(product.id);
+  const saved = wishlist.includes(product._id);
   const best = [...product.offers].sort((a, b) => a.price - b.price)[0]!;
-  const seller = getSeller(best.sellerId);
+  const seller = sellerFromOffer(best);
+  const sellerId = sellerIdFromOffer(best);
 
   return (
     <div className="group card-surface flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-lift">
-      <Link to="/product/$productId" params={{ productId: product.id }} className="relative block">
-        <div
-          className="flex h-40 items-center justify-center text-5xl"
-          style={{ backgroundImage: product.image }}
-          aria-hidden
-        >
-          {product.emoji}
+      <Link to="/product/$productId" params={{ productId: product.slug }} className="relative block">
+        <div className="flex h-40 items-center justify-center overflow-hidden text-5xl" aria-hidden>
+          {product.image ? (
+            <img src={product.image} alt="" className="size-full object-cover" />
+          ) : (
+            product.emoji ?? "📦"
+          )}
         </div>
         {product.oldPrice && (
           <span className="absolute left-3 top-3 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
@@ -32,13 +40,13 @@ export function ProductCard({ product, reason }: { product: Product; reason?: st
         <div className="flex items-start justify-between gap-2">
           <Link
             to="/product/$productId"
-            params={{ productId: product.id }}
+            params={{ productId: product.slug }}
             className="line-clamp-2 text-sm font-semibold leading-snug hover:text-primary"
           >
-            {lang === "bn" ? product.nameBn : product.name}
+            {lang === "bn" && product.nameBn ? product.nameBn : product.name}
           </Link>
           <button
-            onClick={() => toggleWishlist(product.id)}
+            onClick={() => void toggleWishlist(product._id)}
             aria-label="wishlist"
             className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-destructive"
           >
@@ -53,7 +61,9 @@ export function ProductCard({ product, reason }: { product: Product; reason?: st
 
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="size-3.5" />
-          <span className="truncate">{lang === "bn" ? seller.nameBn : seller.name}</span>
+          <span className="truncate">
+            {seller ? (lang === "bn" && seller.nameBn ? seller.nameBn : seller.name) : "Seller"}
+          </span>
         </div>
 
         {reason && (
@@ -71,7 +81,7 @@ export function ProductCard({ product, reason }: { product: Product; reason?: st
             </div>
           </div>
           <button
-            onClick={() => addToCart(product.id, best.sellerId)}
+            onClick={() => void addToCart(product.slug, sellerId)}
             className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             {t("addToCart")}

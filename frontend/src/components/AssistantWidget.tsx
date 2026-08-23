@@ -2,74 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bot, Send, X } from "lucide-react";
 import { useLang } from "@/lib/i18n";
-import { products } from "@/lib/mock-data";
-import { useStore } from "@/lib/store";
+import { api } from "@/lib/api";
 
 type Msg = { role: "user" | "assistant"; text: string; chips?: { label: string; to: string; params?: Record<string, string> }[] };
 
 const suggestions = [
   "Compare the two cheapest headphone offers",
-  "Where is my order HL-2291?",
+  "Where is my latest order?",
   "Suggest a gift under ৳2000",
   "Are the reviews on the serum trustworthy?",
 ];
 
-function reply(input: string, orders: { id: string; status: number }[]): Msg {
-  const q = input.toLowerCase();
-
-  if (q.includes("order") || q.includes("track") || q.includes("hl-")) {
-    const o = orders[0];
-    return {
-      role: "assistant",
-      text: o
-        ? `Order #${o.id} is currently at stage "${["confirmed", "packed", "out for delivery", "delivered"][o.status]}". Estimated arrival today between 5–8 PM. Want me to open the live tracker?`
-        : "You have no active orders right now.",
-      chips: [{ label: "Open order tracking", to: "/orders" }],
-    };
-  }
-  if (q.includes("compare") || q.includes("cheapest") || q.includes("price")) {
-    const p = products[0]!;
-    const sorted = [...p.offers].sort((a, b) => a.price - b.price);
-    return {
-      role: "assistant",
-      text: `For ${p.name}: TechHub BD Online is ৳${sorted[0]!.price} (2–3 days nationwide) while Dhanmondi Electronics is ৳${sorted[1]!.price} but delivers the same day locally. If you need it today, the ৳151 premium is worth it; otherwise take the online seller.`,
-      chips: [{ label: "See full comparison", to: "/product/$productId", params: { productId: p.id } }],
-    };
-  }
-  if (q.includes("review") || q.includes("fake") || q.includes("trust")) {
-    return {
-      role: "assistant",
-      text: "I scanned 452 reviews for the Vitamin C serum. 1 review is flagged as suspicious (promotional account, only 5-star posts). Excluding flagged reviews the rating drops from 4.4 to 4.3. Genuine buyers report visible results in 4–8 weeks with mild tingling on sensitive skin.",
-      chips: [{ label: "Read the summary", to: "/product/$productId", params: { productId: "p6" } }],
-    };
-  }
-  if (q.includes("gift") || q.includes("under") || q.includes("budget") || q.includes("suggest") || q.includes("recommend")) {
-    return {
-      role: "assistant",
-      text: "Under ৳2,000 I'd pick the Handloom Cotton Panjabi (৳1,750, local artisan, 4.5★) for a gift, or the Tape Ball Cricket Bat (৳1,450) if they play street cricket. Both ship same/next day inside Dhaka.",
-      chips: [
-        { label: "Handloom Panjabi", to: "/product/$productId", params: { productId: "p4" } },
-        { label: "Cricket Bat", to: "/product/$productId", params: { productId: "p7" } },
-      ],
-    };
-  }
-  const match = products.find((p) => q.includes(p.name.toLowerCase().split(" ")[0]!.toLowerCase()));
-  if (match) {
-    return {
-      role: "assistant",
-      text: `${match.name} is ৳${match.price} from ${match.offers.length} sellers, rated ${match.rating}★. Summary: ${match.aiSummary}`,
-      chips: [{ label: "Open product", to: "/product/$productId", params: { productId: match.id } }],
-    };
-  }
-  return {
-    role: "assistant",
-    text: "I can compare seller offers, track your orders, summarise reviews, or recommend products within a budget. Try asking about a category like electronics or grocery.",
-  };
-}
-
 export function AssistantWidget() {
   const { t } = useLang();
-  const { orders } = useStore();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -87,10 +32,31 @@ export function AssistantWidget() {
     setMsgs((m) => [...m, { role: "user", text }]);
     setInput("");
     setTyping(true);
-    window.setTimeout(() => {
-      setMsgs((m) => [...m, reply(text, orders)]);
-      setTyping(false);
-    }, 700);
+    api.ai
+      .assistant(text)
+      .then((res) => {
+        setMsgs((m) => [
+          ...m,
+          {
+            role: "assistant",
+            text: res.reply || "No response from assistant.",
+            chips: [{ label: "Browse products", to: "/search" }],
+          },
+        ]);
+      })
+      .catch((err) => {
+        setMsgs((m) => [
+          ...m,
+          {
+            role: "assistant",
+            text:
+              err instanceof Error
+                ? err.message
+                : "Assistant is unavailable right now.",
+          },
+        ]);
+      })
+      .finally(() => setTyping(false));
   };
 
   return (
@@ -104,12 +70,12 @@ export function AssistantWidget() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-5 z-50 flex h-[520px] w-[min(92vw,380px)] flex-col overflow-hidden card-surface shadow-lift">
+        <div className="fixed bottom-24 right-5 z-50 flex h-130 w-[min(92vw,380px)] flex-col overflow-hidden card-surface shadow-lift">
           <div className="flex items-center gap-2 bg-hero-gradient px-4 py-3 text-primary-foreground">
             <Bot className="size-5" />
             <div>
               <div className="text-sm font-semibold">{t("assistant")}</div>
-              <div className="text-[11px] opacity-80">Demo responses · no live model</div>
+              <div className="text-[11px] opacity-80">Live backend assistant</div>
             </div>
           </div>
 

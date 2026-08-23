@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { coupons } from "@/lib/mock-data";
 import { useLang } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
+import { api } from "@/lib/api";
+import { useAsync } from "@/lib/hooks/useAsync";
 import { Coins, Gift, Ticket, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/rewards")({
@@ -20,17 +21,37 @@ export const Route = createFileRoute("/rewards")({
 
 function RewardsPage() {
   const { t } = useLang();
-  const { coins, spendCoins, pushNotification } = useStore();
+  const { coins, reload } = useStore();
   const [claimed, setClaimed] = useState<string[]>([]);
 
-  const redeem = (code: string, cost: number) => {
-    if (spendCoins(cost)) {
-      setClaimed((c) => [...c, code]);
-      pushNotification({ type: "reward", title: `Coupon ${code} added to your account`, titleBn: `কুপন ${code} যুক্ত হয়েছে` });
-    }
+  const coupons = useAsync(
+    () =>
+      api.rewards.coupons() as Promise<{
+        items: { code: string; label: string; cost: number; expires: string }[];
+      }>,
+    [],
+    true,
+  );
+
+  const me = useAsync(
+    () =>
+      api.rewards.me() as Promise<{
+        coins: number;
+        claimedCoupons: string[];
+        coinsToNextTier: number;
+      }>,
+    [],
+    true,
+  );
+
+  const redeem = async (code: string) => {
+    await api.rewards.redeem(code);
+    setClaimed((c) => [...c, code]);
+    await Promise.all([reload(), me.reload()]);
   };
 
-  const nextTier = 2000;
+  const liveCoins = me.data?.coins ?? coins;
+  const nextTier = liveCoins + (me.data?.coinsToNextTier ?? 2000);
 
   return (
     <Layout>
@@ -41,14 +62,14 @@ function RewardsPage() {
           <div className="flex items-center gap-2 text-sm opacity-90">
             <Coins className="size-4" /> Coin balance
           </div>
-          <div className="font-display text-4xl font-extrabold">{coins}</div>
+          <div className="font-display text-4xl font-extrabold">{liveCoins}</div>
           <p className="mt-1 text-xs opacity-80">100 coins = ৳100 off · earn 1 coin per ৳50 spent</p>
           <div className="mt-4">
             <div className="h-2 overflow-hidden rounded-full bg-primary-foreground/25">
-              <div className="h-full rounded-full bg-accent-gradient" style={{ width: `${Math.min(100, (coins / nextTier) * 100)}%` }} />
+              <div className="h-full rounded-full bg-accent-gradient" style={{ width: `${Math.min(100, (liveCoins / nextTier) * 100)}%` }} />
             </div>
             <p className="mt-1 text-xs opacity-80">
-              {Math.max(0, nextTier - coins)} coins to Gold tier (free delivery on all local orders)
+              {me.data?.coinsToNextTier ?? Math.max(0, nextTier - liveCoins)} coins to Gold tier (free delivery on all local orders)
             </p>
           </div>
         </div>
@@ -75,16 +96,16 @@ function RewardsPage() {
         <Ticket className="size-5 text-accent" /> Redeem coupons
       </h2>
       <div className="mt-3 grid gap-4 sm:grid-cols-3">
-        {coupons.map((c) => {
-          const done = claimed.includes(c.code);
+        {(coupons.data?.items ?? []).map((c) => {
+          const done = claimed.includes(c.code) || (me.data?.claimedCoupons ?? []).includes(c.code);
           return (
             <div key={c.code} className="card-surface flex flex-col gap-2 p-5">
               <span className="w-fit rounded-lg bg-accent-gradient px-2 py-0.5 font-mono text-xs font-bold text-accent-foreground">{c.code}</span>
               <p className="text-sm font-medium">{c.label}</p>
               <p className="text-xs text-muted-foreground">Expires {c.expires}</p>
               <button
-                onClick={() => redeem(c.code, c.cost)}
-                disabled={done || coins < c.cost}
+                onClick={() => void redeem(c.code)}
+                disabled={done || liveCoins < c.cost}
                 className="mt-auto rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-40"
               >
                 {done ? "✓ Claimed" : `${t("redeem")} · ${c.cost} ${t("coins")}`}

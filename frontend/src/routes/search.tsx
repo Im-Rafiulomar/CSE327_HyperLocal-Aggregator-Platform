@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
-import { categories, products } from "@/lib/mock-data";
 import { useLang, money } from "@/lib/i18n";
+import { api } from "@/lib/api";
+import { useAsync } from "@/lib/hooks/useAsync";
+import type { ApiProduct } from "@/lib/api/types";
 import { SlidersHorizontal } from "lucide-react";
 
 type SearchParams = { q: string; category: string | undefined };
@@ -33,21 +35,28 @@ function SearchPage() {
   const [localOnly, setLocalOnly] = useState(false);
   const [sort, setSort] = useState("relevance");
 
-  const term = q.toLowerCase();
-  let list = products.filter((p) => {
-    const matches =
-      !term ||
-      p.name.toLowerCase().includes(term) ||
-      p.nameBn.includes(q) ||
-      p.brand.toLowerCase().includes(term) ||
-      p.category.includes(term) ||
-      term.split(" ").some((w: string) => w.length > 3 && p.name.toLowerCase().includes(w));
-    return matches && (!cat || p.category === cat) && p.price <= maxPrice && p.rating >= minRating;
-  });
-  if (localOnly) list = list.filter((p) => p.offers.some((o) => ["s1", "s3", "s4"].includes(o.sellerId)));
-  if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
-  if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-  if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+  const productsRes = useAsync(
+    () =>
+      api.products.list({
+        q,
+        category: cat,
+        maxPrice,
+        minRating,
+        localOnly: localOnly ? "true" : "false",
+        sort,
+        page: 1,
+        limit: 48,
+      }) as Promise<{ items: ApiProduct[]; total: number }>,
+    [q, cat, maxPrice, minRating, localOnly, sort],
+    true,
+  );
+  const categoriesRes = useAsync(
+    () => api.products.categories() as Promise<{ items: string[] }>,
+    [],
+    true,
+  );
+
+  const list = productsRes.data?.items ?? [];
 
   return (
     <Layout>
@@ -73,13 +82,13 @@ function SearchPage() {
               >
                 All
               </button>
-              {categories.map((c) => (
+              {(categoriesRes.data?.items ?? []).map((c) => (
                 <button
-                  key={c.id}
-                  onClick={() => setCat(c.id === cat ? undefined : c.id)}
-                  className={"rounded-full border px-2.5 py-1 text-xs " + (cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border")}
+                  key={c}
+                  onClick={() => setCat(c === cat ? undefined : c)}
+                  className={"rounded-full border px-2.5 py-1 text-xs " + (cat === c ? "border-primary bg-primary text-primary-foreground" : "border-border")}
                 >
-                  {c.emoji} {lang === "bn" ? c.nameBn : c.name}
+                  {c}
                 </button>
               ))}
             </div>
@@ -96,7 +105,7 @@ function SearchPage() {
               step={100}
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full accent-[var(--primary)]"
+              className="w-full accent-primary"
             />
           </div>
 
@@ -116,7 +125,7 @@ function SearchPage() {
           </div>
 
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={localOnly} onChange={(e) => setLocalOnly(e.target.checked)} className="accent-[var(--primary)]" />
+            <input type="checkbox" checked={localOnly} onChange={(e) => setLocalOnly(e.target.checked)} className="accent-primary" />
             {lang === "bn" ? "শুধু স্থানীয় বিক্রেতা" : "Local sellers only"}
           </label>
 
@@ -136,6 +145,9 @@ function SearchPage() {
         </aside>
 
         <div>
+          {productsRes.loading && <p className="mb-3 text-sm text-muted-foreground">Loading products...</p>}
+          {productsRes.error && <p className="mb-3 text-sm text-destructive">{productsRes.error}</p>}
+
           {list.length === 0 ? (
             <div className="card-surface p-10 text-center text-sm text-muted-foreground">
               No products matched. Try clearing filters or searching a category like “grocery”.
@@ -143,7 +155,7 @@ function SearchPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           )}

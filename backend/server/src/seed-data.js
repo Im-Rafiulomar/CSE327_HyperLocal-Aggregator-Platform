@@ -1,54 +1,8 @@
-export type Seller = {
-  id: string;
-  name: string;
-  nameBn: string;
-  area: string;
-  rating: number;
-  isLocal: boolean;
-  verified: boolean;
-  since: string;
-  responseTime: string;
-};
 
-export type Offer = {
-  sellerId: string;
-  price: number;
-  delivery: string;
-  stock: number;
-};
 
-export type Review = {
-  id: string;
-  user: string;
-  rating: number;
-  text: string;
-  date: string;
-  suspicious?: boolean;
-  reason?: string;
-};
 
-export type Product = {
-  id: string;
-  name: string;
-  nameBn: string;
-  brand: string;
-  category: string;
-  image: string;
-  emoji: string;
-  price: number;
-  oldPrice?: number;
-  rating: number;
-  reviewCount: number;
-  description: string;
-  descriptionBn: string;
-  specs: Record<string, string>;
-  offers: Offer[];
-  reviews: Review[];
-  aiSummary: string;
-  tags: string[];
-};
 
-export const sellers: Seller[] = [
+export const sellers = [
   { id: "s1", name: "Dhanmondi Electronics", nameBn: "ধানমন্ডি ইলেকট্রনিক্স", area: "Dhanmondi, Dhaka", rating: 4.7, isLocal: true, verified: true, since: "2019", responseTime: "~12 min" },
   { id: "s2", name: "TechHub BD Online", nameBn: "টেকহাব বিডি", area: "Nationwide", rating: 4.5, isLocal: false, verified: true, since: "2017", responseTime: "~1 hr" },
   { id: "s3", name: "Uttara Gadget Corner", nameBn: "উত্তরা গ্যাজেট কর্নার", area: "Uttara, Dhaka", rating: 4.3, isLocal: true, verified: false, since: "2021", responseTime: "~30 min" },
@@ -64,7 +18,7 @@ export const categories = [
   { id: "sports", name: "Sports", nameBn: "খেলাধুলা", emoji: "🏏" },
 ];
 
-export const products: Product[] = [
+export const products = [
   {
     id: "p1",
     name: "Wireless Noise-Cancelling Headphones",
@@ -275,8 +229,6 @@ export const products: Product[] = [
   },
 ];
 
-export const getProduct = (id: string) => products.find((p) => p.id === id);
-export const getSeller = (id: string) => sellers.find((s) => s.id === id)!;
 
 export const coupons = [
   { code: "LOCAL100", label: "৳100 off on local seller orders", cost: 500, expires: "31 Aug" },
