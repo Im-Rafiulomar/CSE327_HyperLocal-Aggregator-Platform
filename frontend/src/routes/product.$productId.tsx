@@ -103,9 +103,16 @@ function ProductPage() {
     <Layout>
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <div className="flex h-80 items-center justify-center overflow-hidden rounded-3xl text-8xl shadow-soft">
-            {product.image ? (
-              <img src={product.image} alt="" className="size-full object-cover" />
+          <div className="flex h-80 sm:h-96 items-center justify-center overflow-hidden rounded-3xl bg-secondary/30 text-8xl shadow-soft">
+            {product.image && !product.image.startsWith("linear-gradient") ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                className="size-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = "none";
+                }}
+              />
             ) : (
               product.emoji ?? "📦"
             )}

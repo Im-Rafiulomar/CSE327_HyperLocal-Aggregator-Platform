@@ -11,8 +11,10 @@ function buildDefaultAdminAuth() {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   // Service-account private keys are stored as a single env var; the literal
-  // "\n" sequences need to become real newlines for the PEM to parse.
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  // "\n" sequences need to become real newlines for the PEM to parse, and quotes stripped if present.
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY
+    ?.replace(/^["']|["']$/g, "")
+    ?.replace(/\\n/g, "\n");
   if (!projectId || !clientEmail || !privateKey) return null;
 
   const app = getApps()[0] ?? initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
@@ -46,7 +48,12 @@ export class FirebaseAuthService {
       // verifyIdToken checks signature, issuer, audience and expiry against
       // the configured project, and rejects revoked tokens with checkRevoked.
       decoded = await this.adminAuth.verifyIdToken(idToken, true);
-    } catch {
+    } catch (err) {
+      // Log the real Admin SDK error — the generic message below is what the
+      // user sees, but it fires for very different underlying causes
+      // (expired/revoked token, clock skew, wrong project, or a bad/rotated
+      // service-account credential that can't even authenticate to Google).
+      console.error("[FirebaseAuthService] verifyIdToken failed:", err?.errorInfo?.code || err?.code || err?.message || err);
       throw unauthorized("Invalid or expired Firebase credential");
     }
 

@@ -32,7 +32,12 @@ export class AiLabelStrategy extends LabelStrategy {
 
   async detect(image) {
     const raw = await this.provider.describeImage(image, PROMPT);
-    const json = JSON.parse(raw.replace(/^```(?:json)?|```$/g, "").trim());
+    const cleaned = raw.replace(/^```(?:json)?|```$/g, "").trim();
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("No JSON object found in vision response");
+    }
+    const json = JSON.parse(match[0]);
     return {
       labels: (json.labels ?? []).map((l) => String(l).toLowerCase().trim()).filter(Boolean).slice(0, 6),
       category: json.category ?? "",

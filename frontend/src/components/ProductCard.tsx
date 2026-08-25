@@ -23,15 +23,23 @@ export function ProductCard({ product, reason }: { product: ApiProduct; reason?:
   return (
     <div className="group card-surface flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-lift">
       <Link to="/product/$productId" params={{ productId: product.slug }} className="relative block">
-        <div className="flex h-40 items-center justify-center overflow-hidden text-5xl" aria-hidden>
-          {product.image ? (
-            <img src={product.image} alt="" className="size-full object-cover" />
+        <div className="flex h-44 items-center justify-center overflow-hidden bg-secondary/30 text-5xl" aria-hidden>
+          {product.image && !product.image.startsWith("linear-gradient") ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              loading="lazy"
+              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                (e.currentTarget as HTMLElement).style.display = "none";
+              }}
+            />
           ) : (
             product.emoji ?? "📦"
           )}
         </div>
         {product.oldPrice && (
-          <span className="absolute left-3 top-3 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
+          <span className="absolute left-3 top-3 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground shadow-sm">
             -{Math.round((1 - product.price / product.oldPrice) * 100)}%
           </span>
         )}

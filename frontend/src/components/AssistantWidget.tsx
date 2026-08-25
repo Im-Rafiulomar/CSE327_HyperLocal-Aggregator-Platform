@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bot, Send, X } from "lucide-react";
-import { useLang } from "@/lib/i18n";
+import { useLang, money } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import type { ApiProduct } from "@/lib/api/types";
 
-type Msg = { role: "user" | "assistant"; text: string; chips?: { label: string; to: string; params?: Record<string, string> }[] };
+type Msg = {
+  role: "user" | "assistant";
+  text: string;
+  products?: ApiProduct[];
+  chips?: { label: string; to: string; params?: Record<string, string> }[];
+};
 
 const suggestions = [
   "Compare the two cheapest headphone offers",
@@ -14,10 +20,11 @@ const suggestions = [
 ];
 
 export function AssistantWidget() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([
     { role: "assistant", text: "Salam! I'm your HyperLocal assistant. Ask me to compare sellers, track an order, or find something within your budget." },
   ]);
@@ -27,20 +34,34 @@ export function AssistantWidget() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, typing, open]);
 
+  // Check once whether the backend actually has an AI provider configured,
+  // so we can be upfront instead of only finding out on the first message.
+  useEffect(() => {
+    api.ai
+      .status()
+      .then((res) => setAiEnabled(res.aiEnabled))
+      .catch(() => setAiEnabled(null));
+  }, []);
+
   const send = (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || typing) return;
     setMsgs((m) => [...m, { role: "user", text }]);
     setInput("");
     setTyping(true);
     api.ai
       .assistant(text)
       .then((res) => {
+        const products = res.data?.products?.slice(0, 4) ?? [];
         setMsgs((m) => [
           ...m,
           {
             role: "assistant",
             text: res.reply || "No response from assistant.",
-            chips: [{ label: "Browse products", to: "/search" }],
+            products,
+            chips:
+              products.length === 0
+                ? [{ label: "Browse products", to: "/search" }]
+                : undefined,
           },
         ]);
       })
@@ -52,7 +73,7 @@ export function AssistantWidget() {
             text:
               err instanceof Error
                 ? err.message
-                : "Assistant is unavailable right now.",
+                : "Assistant is unavailable right now. Please try again in a moment.",
           },
         ]);
       })
@@ -75,9 +96,17 @@ export function AssistantWidget() {
             <Bot className="size-5" />
             <div>
               <div className="text-sm font-semibold">{t("assistant")}</div>
-              <div className="text-[11px] opacity-80">Live backend assistant</div>
+              <div className="text-[11px] opacity-80">
+                {aiEnabled === false ? "Rule-based mode (no AI key set)" : "Live backend assistant"}
+              </div>
             </div>
           </div>
+
+          {aiEnabled === false && (
+            <div className="border-b border-border bg-secondary/60 px-3 py-1.5 text-[11px] text-muted-foreground">
+              AI model isn't configured on the server, so I can only match keywords right now (track / compare / budget / gift).
+            </div>
+          )}
 
           <div className="flex-1 space-y-3 overflow-y-auto p-3">
             {msgs.map((m, i) => (
@@ -90,6 +119,29 @@ export function AssistantWidget() {
                   }
                 >
                   {m.text}
+                  {m.products && m.products.length > 0 && (
+                    <div className="mt-2 space-y-1.5">
+                      {m.products.map((p) => (
+                        <Link
+                          key={p._id ?? p.slug}
+                          to="/product/$productId"
+                          params={{ productId: p.slug }}
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-2 rounded-lg border border-border bg-card p-1.5 text-left hover:bg-secondary"
+                        >
+                          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-lg">
+                            {p.image ? (
+                              <img src={p.image} alt="" className="size-full object-cover" />
+                            ) : (
+                              p.emoji ?? "📦"
+                            )}
+                          </span>
+                          <span className="flex-1 truncate text-xs font-medium">{p.name}</span>
+                          <span className="shrink-0 text-xs font-semibold text-primary">{money(p.price, lang)}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                   {m.chips && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {m.chips.map((c) => (
@@ -117,7 +169,8 @@ export function AssistantWidget() {
               <button
                 key={s}
                 onClick={() => send(s)}
-                className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-secondary"
+                disabled={typing}
+                className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-secondary disabled:opacity-50"
               >
                 {s}
               </button>
@@ -135,9 +188,15 @@ export function AssistantWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask anything…"
-              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              disabled={typing}
+              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
             />
-            <button type="submit" className="rounded-lg bg-primary p-2 text-primary-foreground" aria-label="Send">
+            <button
+              type="submit"
+              disabled={typing || !input.trim()}
+              className="rounded-lg bg-primary p-2 text-primary-foreground disabled:opacity-60"
+              aria-label="Send"
+            >
               <Send className="size-4" />
             </button>
           </form>

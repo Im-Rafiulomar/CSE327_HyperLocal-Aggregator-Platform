@@ -92,8 +92,19 @@ function ResultList({ items, onPick }: { items: ApiProduct[]; onPick: (name: str
           onClick={() => onPick(p.name)}
           className="flex w-full items-center gap-3 rounded-lg border border-border p-2 text-left hover:bg-secondary"
         >
-          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-xl">
-            {p.image ? <img src={p.image} alt="" className="size-full object-cover" /> : (p.emoji ?? "📦")}
+          <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary/40 text-xl">
+            {p.image && !p.image.startsWith("linear-gradient") ? (
+              <img
+                src={p.image}
+                alt=""
+                className="size-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = "none";
+                }}
+              />
+            ) : (
+              (p.emoji ?? "📦")
+            )}
           </span>
           <span className="flex-1 text-sm">{p.name}</span>
           <span className="text-xs font-semibold text-primary">৳{p.price}</span>
@@ -132,12 +143,21 @@ function VoicePanel({ onResult, language }: { onResult: (q: string) => void; lan
     setState("working");
     try {
       const capture = await recorder.stop();
+      const finalTranscript = (capture.transcript || heard || "").trim();
+      const hasAudio = Boolean(capture.audio && capture.audio.length > 0);
+
+      if (!finalTranscript && !hasAudio) {
+        setError("No speech was detected. Please try speaking again.");
+        setState("idle");
+        return;
+      }
+
       const res = await api.ai.voiceSearch({
-        ...(capture.transcript ? { transcript: capture.transcript } : {}),
-        ...(capture.audio ? { audio: capture.audio, mimeType: capture.mimeType } : {}),
-        language: capture.language,
+        ...(finalTranscript ? { transcript: finalTranscript } : {}),
+        ...(hasAudio ? { audio: capture.audio, mimeType: capture.mimeType } : {}),
+        language: capture.language || language,
       });
-      setHeard(res.transcript || capture.transcript || "");
+      setHeard(res.transcript || finalTranscript || "");
       setItems(res.items ?? []);
       setState("done");
     } catch (err) {
