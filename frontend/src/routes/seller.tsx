@@ -200,9 +200,16 @@ function ListingRow({
 
   return (
     <div className="flex flex-wrap items-center gap-3 py-3">
-      <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-secondary text-lg">
-        {product.image ? (
-          <img src={product.image} alt="" className="size-full object-cover" />
+      <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-secondary/40 text-lg">
+        {product.image && !product.image.startsWith("linear-gradient") ? (
+          <img
+            src={product.image}
+            alt=""
+            className="size-full object-cover"
+            onError={(e) => {
+              (e.currentTarget as HTMLElement).style.display = "none";
+            }}
+          />
         ) : (
           (product.emoji ?? "📦")
         )}

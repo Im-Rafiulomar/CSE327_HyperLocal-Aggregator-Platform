@@ -280,12 +280,19 @@ export class SellerRepository extends BaseRepository {
   }
 }
 
+export type AssistantReply = {
+  intent: string;
+  reply: string;
+  data?: {
+    products?: ApiProduct[];
+    order?: { code: string; status: string; total: number };
+    error?: string;
+  };
+};
+
 export class AiRepository extends BaseRepository {
   assistant(message: string) {
-    return this.http.post<{ intent: string; reply: string; data?: unknown }>(
-      "/ai/assistant",
-      { message },
-    );
+    return this.http.post<AssistantReply>("/ai/assistant", { message });
   }
 
   status() {

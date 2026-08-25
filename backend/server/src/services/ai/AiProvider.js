@@ -61,18 +61,40 @@ export class OpenAiCompatibleProvider extends AiProvider {
       : { [this.keyHeader]: this.apiKey };
   }
 
-  async chat(messages, { model, temperature = 0.3, json = false, maxTokens = 700 } = {}) {
-    const res = await fetch(`${this.baseUrl}/chat/completions`, {
+  async chat(messages, { model, temperature = 0.3, json = false, maxTokens = 1500 } = {}) {
+    const bodyPayload = {
+      model: model || this.model,
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+      ...(json ? { response_format: { type: "json_object" } } : {}),
+    };
+
+    let res = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...this.authHeaders },
-      body: JSON.stringify({
-        model: model || this.model,
-        messages,
-        temperature,
-        max_tokens: maxTokens,
-        ...(json ? { response_format: { type: "json_object" } } : {}),
-      }),
+      body: JSON.stringify(bodyPayload),
     });
+
+    // If json_validate_failed happens on Groq, retry once without the rigid response_format constraint
+    if (!res.ok && json) {
+      const errText = await res.text();
+      if (errText.includes("json_validate_failed") || errText.includes("max completion tokens")) {
+        const fallbackPayload = {
+          ...bodyPayload,
+          max_tokens: Math.max(maxTokens, 2048),
+        };
+        delete fallbackPayload.response_format;
+        res = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...this.authHeaders },
+          body: JSON.stringify(fallbackPayload),
+        });
+      } else {
+        throw new Error(`AI chat failed (${res.status}): ${errText.slice(0, 300)}`);
+      }
+    }
+
     if (!res.ok) throw new Error(`AI chat failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
     const body = await res.json();
     return body.choices?.[0]?.message?.content ?? "";
@@ -90,7 +112,7 @@ export class OpenAiCompatibleProvider extends AiProvider {
           ],
         },
       ],
-      { model: this.visionModel, json: true, temperature: 0.1 },
+      { model: this.visionModel, json: true, temperature: 0.1, maxTokens: 2048 },
     );
   }
 

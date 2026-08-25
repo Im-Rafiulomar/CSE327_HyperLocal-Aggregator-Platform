@@ -43,10 +43,20 @@ function CartPage() {
                   <Link
                     to="/product/$productId"
                     params={{ productId: line.productSlug }}
-                    className="flex size-20 shrink-0 items-center justify-center rounded-xl text-3xl"
-                    style={line.productImage ? { backgroundImage: line.productImage } : undefined}
+                    className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary/30 text-3xl"
                   >
-                    {line.productEmoji ?? "📦"}
+                    {line.productImage && !line.productImage.startsWith("linear-gradient") ? (
+                      <img
+                        src={line.productImage}
+                        alt=""
+                        className="size-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      line.productEmoji ?? "📦"
+                    )}
                   </Link>
                   <div className="flex-1">
                     <Link to="/product/$productId" params={{ productId: line.productSlug }} className="text-sm font-semibold hover:text-primary">

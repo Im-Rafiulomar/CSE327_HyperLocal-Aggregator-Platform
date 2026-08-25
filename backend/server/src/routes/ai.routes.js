@@ -69,12 +69,14 @@ router.post(
   validate(
     z
       .object({
-        audio: z.string().max(12_000_000).optional(),
-        mimeType: z.string().max(60).optional(),
-        language: z.string().max(10).optional(),
-        transcript: z.string().trim().min(1).max(300).optional(),
+        audio: z.string().max(30_000_000).optional(),
+        mimeType: z.string().max(100).optional(),
+        language: z.string().max(50).optional(),
+        transcript: z.string().trim().max(4000).optional(),
       })
-      .refine((v) => v.audio || v.transcript, { message: "Send audio or a transcript" }),
+      .refine((v) => Boolean((v.audio && v.audio.length > 0) || (v.transcript && v.transcript.length > 0)), {
+        message: "Send audio or a transcript",
+      }),
   ),
   asyncHandler(async (req, res) => {
     res.json(await speechService.search(req.body));
